@@ -1,10 +1,10 @@
 # RD Station Conversas v1 verification
 
 **Verdict**: FAIL
-**Proofs**: `proofs.md` at 4aea005
-**Verifier**: independent sub-agent (author != verifier)
+**Proofs**: `proofs.md` at 66363fb
+**Verifier**: independent sub-agents (author != verifier), round 1 C1-C91 and round 2 C92-C115
 
-The Verifier judged C1 to C91 and reported F1 to F23. C92 to C106 are the builder's new checks for the findings; the Verifier did not judge them, and the gate has no second Verifier round.
+Round 1 judged C1 to C91 (F1 to F23). Round 2 judged C92 to C115 and found F24 to F28.
 
 ## Checks
 
@@ -101,24 +101,30 @@ The Verifier judged C1 to C91 and reported F1 to F23. C92 to C106 are the builde
 | C89 | `docs.test.cjs` `C89: CHANGELOG.md has the 1.0.0 section with node, credential, history and no trigger` | yes |
 | C90 | `docs.test.cjs` `C90: every source file opens with a Portuguese header comment` | no - language regex accepts the English word do and per-function comments are not counted (F20) |
 | C91 | walk - owner tags v1.0.0, then `npm view n8n-nodes-rd-station-conversas version` | no - blocked by owner decision AD-014: no v1.0.0 tag, npm view returns E404 (F21) |
-| C92 | `hardening.test.cjs` `C92: the history Options collection has no displayOptions inside it and Country Code lives in its own collection` | yes |
-| C93 | `hardening.test.cjs` `C93: Limit 1 asks the API for at least 2 per page and still returns one item` | yes |
-| C94 | `hardening.test.cjs` `C94: IDs are URL-encoded before they enter a route` | yes |
-| C95 | `hardening.test.cjs` `C95: a phone with letters or an extension is refused` | yes |
-| C96 | `hardening.test.cjs` `C96: create and update refuse an empty name or integration` | yes |
-| C97 | `hardening.test.cjs` `C97: a CPF without 11 digits is refused` | yes |
+| C92 | `hardening.test.cjs` `C92: the history Options collection has no displayOptions inside it and Country Code lives in its own collection` | yes - walks every collection option and asserts the template body carries country_code 1 |
+| C93 | `hardening.test.cjs` `C93: Limit 1 asks the API for at least 2 per page and still returns one item` | no - covers contact and campaign only; report getAll and getCampaignReport share the rule and no test pins it (mutation `Math.max(2, ...)` removed from report.js survived all tests, F24) |
+| C94 | `hardening.test.cjs` `C94: IDs are URL-encoded before they enter a route` | yes - exact URL on one operation; mutations seg=identity, only `?` and only `/` all fail |
+| C95 | `hardening.test.cjs` `C95: a phone with letters or an extension is refused` | yes - exact message and zero requests for two inputs |
+| C96 | `hardening.test.cjs` `C96: create and update refuse an empty name or integration` | yes - exact message, zero requests; updateByPhone empty name is also refused (probe) but untested, see F27 |
+| C97 | `hardening.test.cjs` `C97: a CPF without 11 digits is refused` | yes - mutations `<11` and `>11` both fail; 11-digit control is C97b |
 | C98 | `hardening.test.cjs` `C98: Update and Update by Phone show only their own extra fields` | yes |
-| C99 | `hardening.test.cjs` `C99: an invalid Address JSON is refused with the guided message` | yes |
-| C100 | `hardening.test.cjs` `C100: analytics drops empty id lists and refuses an empty date` | yes |
-| C101 | `hardening.test.cjs` `C101: a tampered or truncated JWE is refused for GCM and CBC` | yes |
+| C99 | `hardening.test.cjs` `C99: an invalid Address JSON is refused with the guided message` | yes - Address only; invalid Job JSON is refused too (probe) but untested, see F27 |
+| C100 | `hardening.test.cjs` `C100: analytics drops empty id lists and refuses an empty date` | yes - analytics only; report getAll empty dates are refused (probe) but untested, see F27 |
+| C101 | `hardening.test.cjs` `C101: a tampered or truncated JWE is refused for GCM and CBC` | yes - tag cut, GCM ciphertext and CBC tag; probes with CBC ciphertext, CBC iv, GCM iv, GCM tag and changed header (AAD) were also refused |
 | C102 | `hardening.test.cjs` `C102: the credential test carries timeout 30000` | yes |
-| C103 | `hardening.test.cjs` `C103: an operation named like an object property is not available` | yes |
-| C104 | `hardening.test.cjs` `C104: history asks for pages of 100 whatever the Limit and returns at most Limit` | yes |
-| C105 | `hardening.test.cjs` `C105: bulk operations refuse an empty list before any request` | yes |
-| C106 | `hardening.test.cjs` `C106: send refuses a message with no text and no attachment` | yes |
-| C107 | `hardening.test.cjs` `C107` | yes |
-| C108 | `hardening.test.cjs` `C108` | yes |
-| C109 | `hardening.test.cjs` `C109` | yes |
+| C103 | `hardening.test.cjs` `C103: an operation named like an object property is not available` | yes - toString, constructor and __proto__ |
+| C104 | `hardening.test.cjs` `C104: history asks for pages of 100 whatever the Limit and returns at most Limit` | yes - asserts qs.limit 100 and 50 items for Limit 50 |
+| C105 | `hardening.test.cjs` `C105: bulk operations refuse an empty list before any request` | yes - three operations, exact message, zero requests |
+| C106 | `hardening.test.cjs` `C106: send refuses a message with no text and no attachment` | yes - whitespace-only text; mutation of the guard fails it |
+| C107 | `hardening.test.cjs` `C107: createMany returns the id when the API job is a plain string and a non-string wallet does not crash` | yes - asserts `[{ id: 'j1' }]` and body `{ wallet_name: '5' }` |
+| C108 | `hardening.test.cjs` `C108: Reset All Contacts Flow posts once per execution even with three input items` | yes - one request and three outputs; removing the WeakMap cache fails it and C50, C8 and C109 guard Confirm Restart |
+| C109 | `hardening.test.cjs` `C109: every operation uses its documented HTTP method and route` | yes - exact method and URL for all 42 operations; weaker only where the last request is asserted for a two-request operation |
+| C110 | `judge-f1.test.cjs` `C110: UTF-8 bytes decrypt to the same accented text` | yes - decoding as latin1 only fails it |
+| C111 | `judge-f1.test.cjs` `C111: latin1 bytes (node-jose string path) decrypt to the same accented text` | yes - decoding as UTF-8 without fallback fails it; text is narrow, see F25 |
+| C112 | `judge-f2.test.cjs` `C112: Return All walks two pages by page and limit` | yes - mutations `<=`, page size 50 and missing `page` all fail |
+| C113 | `judge-f2.test.cjs` `C113: Limit stops early and the screen offers Return All and Limit for getAll` | yes - 5 items, one request, Return All shown, Limit minValue 1 |
+| C114 | `hardening.test.cjs` `C114: send refuses an empty message in phone mode with zero requests` | yes - removing the guard fails it (and C106) |
+| C115 | `judge-f4.test.cjs` `C115: no recorded URL of any operation or dynamic list carries a raw / or ? from an ID` | no - only checks the whole string `a/b?c=d` is absent and that no `?` appears: a seg() that encodes only `?` leaves a raw `/` and C115 stays green (only C94 fails) (F26) |
 
 ## Findings
 
@@ -147,3 +153,8 @@ The Verifier judged C1 to C91 and reported F1 to F23. C92 to C106 are the builde
 | F21 | `proofs.md` records C91 as `pass (Walked)` while no tag exists and `npm view` returns E404. | see the Verifier report | 15bbb5d - C91 stays a walk blocked by AD-014; checks.md Abandoned records it |
 | F22 | `resetAllContactsFlow` with Confirm Restart on fires once per input item. | see the Verifier report | 15bbb5d - C108 |
 | F23 | `message.send` with empty message and no attachment posts an empty message. | see the Verifier report | dcf52be - C106 |
+| F24 | `Math.max(2, Math.min(limit, ...))` deleted from `dist/.../resources/report.js` and every test stayed green; C93 covers contact and campaign only, so `report getAll` and `getCampaignReport` with Limit 1 are unproven (the code is right today: a probe sent `limit=2` and returned 1 item) | add report getAll and getCampaignReport to C93's cases, asserting `qs.limit >= 2` and one item | |
+| F25 | C110 and C111 use `olá, ação`, whose accents are all invalid UTF-8 in latin1, so the fallback is proven only for the easy case. A latin1 text with a valid UTF-8 pair, such as `SÃ£o Paulo`, decodes as `São Paulo` (probe) and nothing says so. A latin1 text with a pair plus a lone byte (`Ã©á`) decodes right | add a case that pins the `Ã©á` result, and write the ambiguity (valid UTF-8 pair inside latin1 text) in README Limits next to AD-015 | |
+| F26 | `judge-f4.test.cjs:44-46` asserts `url.includes(EVIL)` is false and that no `?` is present. A seg() that encodes only `?` passes C115 with a raw `/` in the path (mutation run; only C94 failed) | assert each URL equals the expected path with `encodeURIComponent(EVIL)` (`a%2Fb%3Fc%3Dd`), or that the segment count of the path is the documented one | |
+| F27 | Tests cover less than their claims name: C96 skips `updateByPhone` empty name, C99 skips the Job JSON, C100 skips `report getAll` empty dates. All three are refused today (probes) | one case each in `hardening.test.cjs` | |
+| F28 | `message.send` with only an attachment (empty text) posts a `message` field with an empty string in the multipart body (probe). The API may refuse an empty `message` next to `attach`, and the wire is unproven (same family as F18) | list it in README Limits for the real-account test, or omit `message` when the text is empty | |
