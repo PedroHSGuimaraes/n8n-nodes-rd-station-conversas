@@ -9,6 +9,8 @@ import {
 	compact,
 	fail,
 	onlyDigits,
+	parseJsonField,
+	requireText,
 	requirePhone,
 	returnAllAndLimit,
 	showFor,
@@ -97,14 +99,23 @@ const COMMON_FIELDS: Array<[param: string, apiName: string]> = [
 ];
 
 // Converte o bloco "Additional Fields" no corpo da API, só com o que foi preenchido.
-function additionalBody(fields: IDataObject): IDataObject {
+function additionalBody(
+	ctx: Parameters<typeof requireText>[0],
+	fields: IDataObject,
+	itemIndex: number,
+): IDataObject {
 	const body: IDataObject = {};
 	for (const [param, apiName] of COMMON_FIELDS) {
 		const value = fields[param];
 		// Endereço e cargo chegam como JSON em texto; a API quer objeto.
 		body[apiName] =
 			(param === 'address' || param === 'job') && typeof value === 'string' && value !== ''
-				? (JSON.parse(value) as IDataObject)
+				? parseJsonField(
+						ctx,
+						value,
+						param === 'address' ? 'Address (JSON)' : 'Job (JSON)',
+						itemIndex,
+					)
 				: value;
 	}
 	// Etiquetas digitadas separadas por vírgula viram lista.
@@ -327,27 +338,40 @@ const properties: INodeProperties[] = [
 			},
 		],
 	},
+	// Atualizar (broker) aceita telefones secundários; atualizar por telefone aceita campos personalizados.
+	// Cada operação tem a sua coleção para a tela nunca mostrar um campo que o código descarta.
 	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',
 		type: 'collection',
 		placeholder: 'Add Field',
 		default: {},
-		displayOptions: showFor(RESOURCE, ['update', 'updateByPhone']),
+		displayOptions: showFor(RESOURCE, ['update']),
 		options: [
 			...sharedExtras,
 			textField(
 				'secondaryPhone0',
 				'Secondary Phone 1',
 				'e.g. 5511999990001',
-				'Second phone of the contact (only on Update)',
+				'Second phone of the contact',
 			),
 			textField(
 				'secondaryPhone1',
 				'Secondary Phone 2',
 				'e.g. 5511999990002',
-				'Third phone of the contact (only on Update)',
+				'Third phone of the contact',
 			),
+		],
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: showFor(RESOURCE, ['updateByPhone']),
+		options: [
+			...sharedExtras,
 			{
 				displayName: 'Custom Fields',
 				name: 'customFields',
@@ -355,7 +379,7 @@ const properties: INodeProperties[] = [
 				typeOptions: { multipleValues: true },
 				placeholder: 'Add Custom Field',
 				default: {},
-				description: 'Custom field values (only on Update by Phone)',
+				description: 'Custom field values',
 				options: [
 					{
 						displayName: 'Field',
@@ -382,6 +406,15 @@ const getByPhone: Handler = async function (i) {
 const getByCpf: Handler = async function (i) {
 	// O CPF vai só com números na rota, mesmo digitado com ponto e traço.
 	const cpf = onlyDigits(this.getNodeParameter('cpf', i, '') as string);
+	// CPF tem 11 dígitos; vazio ou curto montaria uma rota quebrada (`/cpf//exists`).
+	if (cpf.length !== 11) {
+		fail(
+			this,
+			"The 'CPF' parameter is invalid",
+			'Enter the 11 digits of the CPF, e.g. 12345678909',
+			i,
+		);
+	}
 	const channel = this.getNodeParameter('channel', i, 'whatsapp') as string;
 	return asObject(
 		await conversasRequest.call(this, 'GET', `/v2/contacts/cpf/${cpf}/exists`, { qs: { channel } }),
@@ -393,7 +426,8 @@ const getAll: Handler = async function (i) {
 	const limit = this.getNodeParameter('limit', i, 50) as number;
 	const options = this.getNodeParameter('options', i, {}) as IDataObject;
 	// Com limite pequeno pedimos só o necessário; senão páginas de 100, o teto das outras listas.
-	const pageSize = returnAll ? 100 : Math.min(limit, 100);
+	// A doc exige `limit` maior que 1, então pedimos no mínimo 2 e cortamos o excesso depois.
+	const pageSize = returnAll ? 100 : Math.max(2, Math.min(limit, 100));
 	const channels = (options.channels as string[] | undefined) ?? [];
 	return collectPages<IDataObject>(
 		async (page) => {
@@ -422,9 +456,9 @@ const create: Handler = async function (i) {
 	}
 	const body: IDataObject = {
 		cel_phone: phone,
-		full_name: this.getNodeParameter('fullName', i) as string,
-		integration: this.getNodeParameter('integration', i) as string,
-		...additionalBody(extra),
+		full_name: requireText(this, this.getNodeParameter('fullName', i, ''), 'Full Name', i),
+		integration: requireText(this, this.getNodeParameter('integration', i, ''), 'Integration', i),
+		...additionalBody(this, extra, i),
 		...compact({
 			department_name: extra.departmentName,
 			workflow_title: extra.workflow,
@@ -444,9 +478,9 @@ const update: Handler = async function (i) {
 	const extra = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
 	const body: IDataObject = {
 		cel_phone: phone,
-		full_name: this.getNodeParameter('fullName', i) as string,
-		integration: this.getNodeParameter('integration', i) as string,
-		...additionalBody(extra),
+		full_name: requireText(this, this.getNodeParameter('fullName', i, ''), 'Full Name', i),
+		integration: requireText(this, this.getNodeParameter('integration', i, ''), 'Integration', i),
+		...additionalBody(this, extra, i),
 		...compact({
 			cel_phone_secondary0: extra.secondaryPhone0,
 			cel_phone_secondary1: extra.secondaryPhone1,
@@ -460,12 +494,13 @@ const update: Handler = async function (i) {
 const updateByPhone: Handler = async function (i) {
 	const phone = requirePhone(this, this.getNodeParameter('phone', i, '') as string, 'Phone', i);
 	const extra = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
-	const customFields = (extra.customFields as IDataObject | undefined)?.items as
-		| IDataObject[]
-		| undefined;
+	// Linhas sem nome do campo não dizem nada à API: saem antes de montar o corpo.
+	const customFields = (
+		((extra.customFields as IDataObject | undefined)?.items as IDataObject[] | undefined) ?? []
+	).filter((row) => String(row.label ?? '').trim() !== '');
 	const body: IDataObject = {
-		full_name: this.getNodeParameter('fullName', i) as string,
-		...additionalBody(extra),
+		full_name: requireText(this, this.getNodeParameter('fullName', i, ''), 'Full Name', i),
+		...additionalBody(this, extra, i),
 		// Formato dos itens NÃO CONFIRMADO na doc: usamos o mesmo `[{ label, info }]` que a leitura devolve.
 		...compact({ customizable_field: customFields }),
 	};
@@ -475,6 +510,9 @@ const updateByPhone: Handler = async function (i) {
 const createMany: Handler = async function (i) {
 	const rows =
 		((this.getNodeParameter('contacts', i, {}) as IDataObject).items as IDataObject[]) ?? [];
+	if (rows.length === 0) {
+		fail(this, "The 'Contacts' parameter is empty", 'Add at least one contact', i);
+	}
 	const contacts = rows.map((row) =>
 		compact({
 			cel_phone: requirePhone(this, String(row.phone ?? ''), 'Phone', i),

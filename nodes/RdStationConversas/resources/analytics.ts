@@ -3,7 +3,7 @@
  */
 import type { IDataObject, INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 
-import { showFor, splitList } from '../helpers';
+import { fail, showFor, splitList } from '../helpers';
 import { conversasRequest } from '../transport';
 import { type Handler, type ResourceModule, asObject, operationProperty } from './types';
 
@@ -120,16 +120,21 @@ const joined = (value: unknown): string =>
 
 const analytics = (operation: string): Handler =>
 	async function (i) {
-		const qs: IDataObject = {
-			start_date: iso(this.getNodeParameter('startDate', i, '')),
-			end_date: iso(this.getNodeParameter('endDate', i, '')),
-		};
+		const start = this.getNodeParameter('startDate', i, '');
+		const end = this.getNodeParameter('endDate', i, '');
+		if (!start)
+			fail(this, "The 'Start Date' parameter is empty", 'Choose the start of the period', i);
+		if (!end) fail(this, "The 'End Date' parameter is empty", 'Choose the end of the period', i);
+		const qs: IDataObject = { start_date: iso(start), end_date: iso(end) };
 		if (operation !== 'getContactsOrigin') {
 			qs.timezone = this.getNodeParameter('timezone', i, 'America/Sao_Paulo') as string;
 		}
 		const options = this.getNodeParameter('options', i, {}) as IDataObject;
-		if (options.departmentIds) qs.department_ids = joined(options.departmentIds);
-		if (options.employeeIds) qs.employee_ids = joined(options.employeeIds);
+		// Compara a lista já unida: `[]` é verdadeiro em JS e mandaria `department_ids=` vazio.
+		const departments = joined(options.departmentIds);
+		const employees = joined(options.employeeIds);
+		if (departments !== '') qs.department_ids = departments;
+		if (employees !== '') qs.employee_ids = employees;
 		return asObject(await conversasRequest.call(this, 'GET', ROUTES[operation], { qs }));
 	};
 

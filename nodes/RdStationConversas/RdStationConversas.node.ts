@@ -61,7 +61,12 @@ export class RdStationConversas implements INodeType {
 			try {
 				const resource = this.getNodeParameter('resource', itemIndex) as string;
 				const operation = this.getNodeParameter('operation', itemIndex) as string;
-				const handler = resources.find((entry) => entry.value === resource)?.handlers[operation];
+				// `Object.hasOwn`: nomes como "toString" não podem achar função herdada do protótipo.
+				const handlers = resources.find((entry) => entry.value === resource)?.handlers;
+				const handler =
+					handlers && Object.prototype.hasOwnProperty.call(handlers, operation)
+						? handlers[operation]
+						: undefined;
 				if (!handler) {
 					throw new NodeOperationError(
 						this.getNode(),

@@ -4,7 +4,7 @@
  */
 import type { IDataObject, INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 
-import { requireId, showFor, splitList } from '../helpers';
+import { fail, requireId, seg, showFor, splitList } from '../helpers';
 import { locator } from '../locators';
 import { conversasRequest } from '../transport';
 import { type Handler, type ResourceModule, asList, asObject, operationProperty } from './types';
@@ -130,20 +130,22 @@ const getAll: Handler = async function () {
 
 const get: Handler = async function (i) {
 	const id = requireId(this, 'employee', 'Employee', i);
-	return asObject(await conversasRequest.call(this, 'GET', `/v1/employees/${id}`));
+	return asObject(await conversasRequest.call(this, 'GET', `/v1/employees/${seg(id)}`));
 };
 
 // Ativar e desativar são a mesma chamada com o verbo trocado no fim da rota.
 const toggle = (action: 'activate' | 'deactivate'): Handler =>
 	async function (i) {
 		const id = requireId(this, 'employee', 'Employee', i);
-		return asObject(await conversasRequest.call(this, 'PUT', `/v2/employees/${id}/${action}`));
+		return asObject(await conversasRequest.call(this, 'PUT', `/v2/employees/${seg(id)}/${action}`));
 	};
 
 const deactivateMany: Handler = async function (i) {
 	const raw = this.getNodeParameter('employeeIds', i, []) as string[] | string;
 	// Aceita a lista do n8n e também texto separado por vírgula vindo de expressão.
 	const ids = Array.isArray(raw) ? raw : splitList(raw);
+	if (ids.length === 0)
+		fail(this, "The 'Employees' parameter is empty", 'Choose at least one employee', i);
 	const response = await conversasRequest.call(this, 'PATCH', '/v2/employees/deactivate', {
 		body: { employees_ids: ids },
 	});
@@ -160,6 +162,8 @@ const deactivateMany: Handler = async function (i) {
 const createMany: Handler = async function (i) {
 	const rows =
 		((this.getNodeParameter('employees', i, {}) as IDataObject).items as IDataObject[]) ?? [];
+	if (rows.length === 0)
+		fail(this, "The 'Employees' parameter is empty", 'Add at least one employee', i);
 	const employees = rows.map((row) => ({ email: row.email, name: row.name, role: row.role }));
 	const response = asObject(
 		await conversasRequest.call(this, 'POST', '/v2/employees/bulk', { body: { employees } }),

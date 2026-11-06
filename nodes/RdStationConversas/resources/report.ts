@@ -3,7 +3,7 @@
  */
 import type { IDataObject, INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 
-import { requireId, returnAllAndLimit, showFor } from '../helpers';
+import { fail, requireId, returnAllAndLimit, seg, showFor } from '../helpers';
 import { locator } from '../locators';
 import { collectPages } from '../pagination';
 import { conversasRequest } from '../transport';
@@ -141,9 +141,15 @@ const properties: INodeProperties[] = [
 
 const getAll: Handler = async function (i) {
 	const options = this.getNodeParameter('options', i, {}) as IDataObject;
+	const startDate = toDay(this.getNodeParameter('startDate', i, ''));
+	const endDate = toDay(this.getNodeParameter('endDate', i, ''));
+	if (startDate === '')
+		fail(this, "The 'Start Date' parameter is empty", 'Choose the first day of the period', i);
+	if (endDate === '')
+		fail(this, "The 'End Date' parameter is empty", 'Choose the last day of the period', i);
 	const qs: IDataObject = {
-		start_date: toDay(this.getNodeParameter('startDate', i, '')),
-		end_date: toDay(this.getNodeParameter('endDate', i, '')),
+		start_date: startDate,
+		end_date: endDate,
 		type: this.getNodeParameter('type', i, 'operators') as string,
 	};
 	// Só envia os filtros que a pessoa escolheu.
@@ -158,11 +164,11 @@ const getCampaignReport: Handler = async function (i) {
 	const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = this.getNodeParameter('limit', i, 50) as number;
 	// O teto da rota é 50 por página.
-	const pageSize = returnAll ? 50 : Math.min(limit, 50);
+	const pageSize = returnAll ? 50 : Math.max(2, Math.min(limit, 50));
 	return collectPages<IDataObject>(
 		async (page) => {
 			const response = asObject(
-				await conversasRequest.call(this, 'GET', `/v4/reports/campaign/${campaign}`, {
+				await conversasRequest.call(this, 'GET', `/v4/reports/campaign/${seg(campaign)}`, {
 					qs: { page, limit: pageSize },
 				}),
 			);

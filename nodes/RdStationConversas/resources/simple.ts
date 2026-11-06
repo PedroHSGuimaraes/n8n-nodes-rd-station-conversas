@@ -5,7 +5,7 @@
  */
 import type { INodeProperties } from 'n8n-workflow';
 
-import { requireId, showFor } from '../helpers';
+import { requireId, seg, showFor } from '../helpers';
 import { conversasRequest } from '../transport';
 import { type Handler, type ResourceModule, asList, asObject, operationProperty } from './types';
 
@@ -41,7 +41,7 @@ const jobOperations = [
 ];
 const jobGet: Handler = async function (i) {
 	const jobId = requireId(this, 'jobId', 'Job ID', i);
-	return asObject(await conversasRequest.call(this, 'GET', `/v2/jobs/${jobId}`));
+	return asObject(await conversasRequest.call(this, 'GET', `/v2/jobs/${seg(jobId)}`));
 };
 export const jobResource: ResourceModule = {
 	value: 'job',

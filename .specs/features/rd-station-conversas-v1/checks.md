@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-91 checks in 9 slices · 6 one-way doors · 0 open
+106 checks in 10 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -284,7 +284,7 @@ Proof: run unit | ✔ C86:
 
 ### S9 - documentation and release
 
-**C87** - the README is in Brazilian Portuguese with the nine required sections (S9 AC 1)
+**C87** - the README is in Brazilian Portuguese with the eight required sections (S9 AC 1)
 Proof: run unit | ✔ C87:
 
 **C88** - the README lists the 42 operations and the deprecated routes left out (S9 AC 2)
@@ -299,6 +299,53 @@ Proof: run unit | ✔ C90:
 **C91** - after the owner tags `v1.0.0`, `npm view n8n-nodes-rd-station-conversas version` returns 1.0.0 (blocked by owner decision AD-013: no tag before the real-account test) (S9 AC 5)
 Proof: walk - owner tags v1.0.0 after testing with a real account; then run `npm view n8n-nodes-rd-station-conversas version`
 
+
+### S10 - Verifier findings
+
+**C92** - The history Options collection holds no nested displayOptions and Country Code lives in its own template collection (Verifier F1)
+Proof: run unit | ✔ C92:
+
+**C93** - Limit 1 asks the API for at least 2 per page and still returns one item (F2)
+Proof: run unit | ✔ C93:
+
+**C94** - IDs are URL-encoded before they enter a route (F3)
+Proof: run unit | ✔ C94:
+
+**C95** - A phone with letters or an extension is refused (F4)
+Proof: run unit | ✔ C95:
+
+**C96** - Create and Update refuse an empty name or integration (F5)
+Proof: run unit | ✔ C96:
+
+**C97** - A CPF without 11 digits is refused (F6)
+Proof: run unit | ✔ C97:
+
+**C98** - Update and Update by Phone each show only their own extra fields (F7)
+Proof: run unit | ✔ C98:
+
+**C99** - An invalid Address JSON is refused with the guided message (F8)
+Proof: run unit | ✔ C99:
+
+**C100** - Analytics drops empty id lists and refuses an empty date (F9)
+Proof: run unit | ✔ C100:
+
+**C101** - A tampered or truncated JWE is refused for GCM and CBC (F10)
+Proof: run unit | ✔ C101:
+
+**C102** - The credential test request carries timeout 30000 (F11)
+Proof: run unit | ✔ C102:
+
+**C103** - An operation named like an object property is not available (F12)
+Proof: run unit | ✔ C103:
+
+**C104** - History asks for pages of 100 whatever the Limit and returns at most Limit (F13)
+Proof: run unit | ✔ C104:
+
+**C105** - Bulk operations refuse an empty list before any request (F14)
+Proof: run unit | ✔ C105:
+
+**C106** - Send refuses a message with no text and no attachment (F23)
+Proof: run unit | ✔ C106:
 
 ## Coverage
 

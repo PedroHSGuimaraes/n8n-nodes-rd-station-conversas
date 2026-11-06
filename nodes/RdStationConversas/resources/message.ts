@@ -11,6 +11,7 @@ import {
 	readLocator,
 	requirePhone,
 	resolveContact,
+	seg,
 	returnAllAndLimit,
 	showFor,
 } from '../helpers';
@@ -146,18 +147,35 @@ const properties: INodeProperties[] = [
 	...returnAllAndLimit(RESOURCE, ['getHistory']),
 	{
 		displayName: 'Options',
+		name: 'templateOptions',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: showFor(RESOURCE, ['sendTemplate']),
+		options: [
+			{
+				displayName: 'Country Code',
+				name: 'countryCode',
+				type: 'string',
+				default: '55',
+				placeholder: 'e.g. 55',
+				description: 'Country code of the phone number',
+			},
+		],
+	},
+	{
+		displayName: 'Options',
 		name: 'options',
 		type: 'collection',
 		placeholder: 'Add Option',
 		default: {},
-		displayOptions: showFor(RESOURCE, ['getHistory', 'sendTemplate']),
+		displayOptions: showFor(RESOURCE, ['getHistory']),
 		options: [
 			{
 				displayName: 'Channels',
 				name: 'channel',
 				type: 'multiOptions',
 				default: ['whatsapp'],
-				displayOptions: showFor(RESOURCE, ['getHistory']),
 				options: [
 					{ name: 'Email', value: 'email' },
 					{ name: 'Instagram', value: 'instagram' },
@@ -167,14 +185,6 @@ const properties: INodeProperties[] = [
 					{ name: 'WhatsApp', value: 'whatsapp' },
 				],
 				description: 'Channels to read messages from',
-			},
-			{
-				displayName: 'Country Code',
-				name: 'countryCode',
-				type: 'string',
-				default: '55',
-				placeholder: 'e.g. 55',
-				description: 'Country code of the phone number',
 			},
 			{
 				displayName: 'End Date',
@@ -236,14 +246,20 @@ const send: Handler = async function (i) {
 	}
 	// Resolve o contato só depois das validações locais, para não gastar requisição à toa.
 	const contactId = await resolveContact(this, 'contact', i);
+	const text = String(this.getNodeParameter('message', i, '') ?? '');
+	const attachName = String(this.getNodeParameter('attachBinaryProperty', i, '') ?? '').trim();
+	// Sem texto e sem anexo a API receberia uma mensagem vazia.
+	if (text.trim() === '' && attachName === '') {
+		fail(this, "The 'Message' parameter is empty", 'Write the message or attach a file', i);
+	}
 	const fields: Array<[string, string]> = [
-		['message', this.getNodeParameter('message', i, '') as string],
+		['message', text],
 		['sent_by', sentBy],
 	];
 	if (operator !== '') fields.push(['operator', operator]);
 
 	const attachProperty = (this.getNodeParameter('attachBinaryProperty', i, '') as string).trim();
-	const path = `/v2/messages/${contactId}/send`;
+	const path = `/v2/messages/${seg(contactId)}/send`;
 	if (attachProperty === '') {
 		// Sem anexo a doc pede `application/x-www-form-urlencoded`.
 		const body = new URLSearchParams(fields);
@@ -274,7 +290,7 @@ const sendTemplate: Handler = async function (i) {
 		fail(this, "The 'Template' parameter is empty", 'Choose the template to send', i);
 	}
 	const sentBy = this.getNodeParameter('sentBy', i, 'bot') as string;
-	const options = this.getNodeParameter('options', i, {}) as IDataObject;
+	const options = this.getNodeParameter('templateOptions', i, {}) as IDataObject;
 	const variables = (
 		((this.getNodeParameter('variables', i, {}) as IDataObject).items as IDataObject[]) ?? []
 	).map((entry) => String(entry.value ?? ''));
@@ -345,7 +361,8 @@ const getHistory: Handler = async function (i) {
 	const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = this.getNodeParameter('limit', i, 50) as number;
 	const options = this.getNodeParameter('options', i, {}) as IDataObject;
-	const pageSize = returnAll ? 100 : Math.min(limit, 100);
+	// O critério fixa páginas de 100; o limite do usuário só corta o resultado (`collectPages`).
+	const pageSize = 100;
 
 	try {
 		return await collectPages<IDataObject>(
@@ -366,7 +383,7 @@ const getHistory: Handler = async function (i) {
 					await conversasRequest.call(this, 'GET', '/v2/messages/history', { qs }),
 				);
 				let decoded: unknown = response.messages;
-				if (typeof response.messages === 'string') {
+				if (typeof response.messages === 'string' && response.messages !== '') {
 					const result = decryptJwe(response.messages, jwk);
 					if (!result.ok) {
 						return fail(

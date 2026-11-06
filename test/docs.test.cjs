@@ -12,7 +12,7 @@ const root = path.join(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 describe('S9 documentation', () => {
-	it('C87: the README is in Portuguese and has the nine required sections', () => {
+	it('C87: the README is in Portuguese and has the eight required sections', () => {
 		const readme = read('README.md');
 		for (const title of [
 			'Instalação',
@@ -48,6 +48,8 @@ describe('S9 documentation', () => {
 			}
 		}
 		assert.equal(listed, 42);
+		// A linha das deprecadas precisa existir; as rotas sozinhas são substring das cobertas.
+		assert.match(readme, /^\*\*Rotas deprecadas/m);
 		for (const route of [
 			'POST /v2/contacts',
 			'/v2/contacts/whatsapp-business',

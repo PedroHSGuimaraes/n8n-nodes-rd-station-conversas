@@ -38,7 +38,10 @@ export function onlyDigits(value: string): string {
  * Devolve `null` quando não serve, para o chamador decidir a mensagem.
  */
 export function normalizePhone(raw: string): string | null {
-	const digits = onlyDigits(String(raw ?? ''));
+	const text = String(raw ?? '');
+	// Letras e ramal ("ext 2") não são máscara: recusar evita colar o ramal no número.
+	if (/[^\d+\s\-()]/.test(text)) return null;
+	const digits = onlyDigits(text);
 	return digits.length >= 8 && digits.length <= 15 ? digits : null;
 }
 
@@ -54,6 +57,36 @@ export function requirePhone(ctx: Ctx, raw: string, label: string, itemIndex: nu
 		);
 	}
 	return phone;
+}
+
+// Codifica um ID antes de ele entrar numa rota: "../x" não pode virar outro caminho com o token da conta.
+export const seg = (value: string): string => encodeURIComponent(value);
+
+// Recusa texto obrigatório vazio: a API trata campo vazio como "apagar" (veja `compact`).
+export function requireText(ctx: Ctx, value: unknown, label: string, itemIndex: number): string {
+	const text = String(value ?? '').trim();
+	if (text === '')
+		fail(ctx, `The '${label}' parameter is empty`, `Fill in the ${label}`, itemIndex);
+	return text;
+}
+
+// Lê um campo JSON digitado e recusa o que não é JSON, com a mensagem guiada.
+export function parseJsonField(
+	ctx: Ctx,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject {
+	try {
+		return (typeof value === 'string' ? JSON.parse(value) : value) as IDataObject;
+	} catch {
+		return fail(
+			ctx,
+			`The '${label}' parameter is invalid`,
+			'Enter valid JSON, e.g. {"city": "São Paulo"}',
+			itemIndex,
+		);
+	}
 }
 
 // Separa "vip, novo" em ["vip", "novo"], sem itens vazios.

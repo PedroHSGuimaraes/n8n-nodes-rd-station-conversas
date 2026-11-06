@@ -67,6 +67,6 @@ export class RdStationConversasApi implements ICredentialType {
 	// Teste com um clique: lista os atendentes. 401 (token inválido) e 403 (sem permissão)
 	// chegam à tela como falha, porque não ligamos `ignoreHttpStatusErrors`.
 	test: ICredentialTestRequest = {
-		request: { baseURL: 'https://api.tallos.com.br', url: '/v2/employees' },
+		request: { baseURL: 'https://api.tallos.com.br', url: '/v2/employees', timeout: 30000 },
 	};
 }

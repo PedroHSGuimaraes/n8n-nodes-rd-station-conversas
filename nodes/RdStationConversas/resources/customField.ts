@@ -7,7 +7,7 @@ import type { IDataObject, INodeProperties, INodePropertyOptions } from 'n8n-wor
 
 import { locator } from '../locators';
 import { collectPages } from '../pagination';
-import { requireId, returnAllAndLimit, showFor } from '../helpers';
+import { requireId, returnAllAndLimit, seg, showFor } from '../helpers';
 import { conversasRequest } from '../transport';
 import { DELETED, type Handler, type ResourceModule, asObject, operationProperty } from './types';
 
@@ -34,20 +34,22 @@ const create: Handler = async function (i) {
 
 const get: Handler = async function (i) {
 	const id = requireId(this, 'customField', 'Custom Field', i);
-	return asObject(await conversasRequest.call(this, 'GET', `/v2/custom-fields/${id}`));
+	return asObject(await conversasRequest.call(this, 'GET', `/v2/custom-fields/${seg(id)}`));
 };
 
 const update: Handler = async function (i) {
 	const id = requireId(this, 'customField', 'Custom Field', i);
 	// Só `info` muda: a API não deixa editar o `label` de um campo já criado.
 	const body: IDataObject = { info: this.getNodeParameter('info', i) as string };
-	return asObject(await conversasRequest.call(this, 'PUT', `/v2/custom-fields/${id}`, { body }));
+	return asObject(
+		await conversasRequest.call(this, 'PUT', `/v2/custom-fields/${seg(id)}`, { body }),
+	);
 };
 
 const remove: Handler = async function (i) {
 	const id = requireId(this, 'customField', 'Custom Field', i);
 	// A API responde 204 sem corpo; devolvemos o item padrão de exclusão.
-	await conversasRequest.call(this, 'DELETE', `/v2/custom-fields/${id}`);
+	await conversasRequest.call(this, 'DELETE', `/v2/custom-fields/${seg(id)}`);
 	return DELETED;
 };
 

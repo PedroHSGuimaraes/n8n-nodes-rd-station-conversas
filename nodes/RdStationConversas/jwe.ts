@@ -75,7 +75,11 @@ export function decryptJwe(compact: string, jwk: Record<string, unknown>): JweRe
 		let plaintext: Buffer;
 		if (spec.gcm) {
 			// O cast só informa ao TypeScript que o modo é GCM (tem tag e AAD); o nome real vem do `enc`.
-			const decipher = createDecipheriv(`aes-${spec.bits}-gcm` as 'aes-256-gcm', cek, iv);
+			const decipher = createDecipheriv(`aes-${spec.bits}-gcm` as 'aes-256-gcm', cek, iv, {
+				authTagLength: 16,
+			});
+			// Tag GCM tem sempre 16 bytes: uma tag curta enfraquece a autenticação e é recusada.
+			if (tag.length !== 16) throw new Error('invalid authentication tag length');
 			decipher.setAAD(aad);
 			decipher.setAuthTag(tag);
 			plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);

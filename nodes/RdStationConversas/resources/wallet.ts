@@ -3,7 +3,7 @@
  */
 import type { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 
-import { fail, resolveContact, showFor } from '../helpers';
+import { fail, resolveContact, seg, showFor } from '../helpers';
 import { locator } from '../locators';
 import { conversasRequest } from '../transport';
 import { DELETED, type Handler, type ResourceModule, asObject, operationProperty } from './types';
@@ -75,7 +75,7 @@ function requireWallet(ctx: Parameters<typeof fail>[0], wallet: string, i: numbe
 
 const addContact: Handler = async function (i) {
 	const customer = await resolveContact(this, 'contact', i);
-	const wallet = requireWallet(this, this.getNodeParameter('wallet', i, '') as string, i);
+	const wallet = requireWallet(this, String(this.getNodeParameter('wallet', i, '')), i);
 	return asObject(
 		await conversasRequest.call(this, 'POST', '/v2/wallets', { body: { customer, wallet } }),
 	);
@@ -84,12 +84,12 @@ const addContact: Handler = async function (i) {
 const removeContact: Handler = async function (i) {
 	const contactId = await resolveContact(this, 'contact', i);
 	// Resposta 204 sem corpo: devolvemos o item padrão de exclusão.
-	await conversasRequest.call(this, 'PATCH', `/v2/wallets/${contactId}`);
+	await conversasRequest.call(this, 'PATCH', `/v2/wallets/${seg(contactId)}`);
 	return DELETED;
 };
 
 const removeAllContacts: Handler = async function (i) {
-	const wallet = requireWallet(this, this.getNodeParameter('wallet', i, '') as string, i);
+	const wallet = requireWallet(this, String(this.getNodeParameter('wallet', i, '')), i);
 	return asObject(
 		await conversasRequest.call(this, 'POST', '/v2/customers/wallets/remove-all', {
 			body: { wallet_name: wallet },

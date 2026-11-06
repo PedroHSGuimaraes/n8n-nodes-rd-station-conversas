@@ -1,6 +1,6 @@
 # rd-station-conversas-v1 proofs
 
-**HEAD**: f385b77
+**HEAD**: 4aea005
 **Tree**: clean
 **Shell**: /bin/sh
 **Result**: 93 pass, 0 fail
@@ -106,13 +106,13 @@
 `Run unit` - exit 0
 
 ```
-  ✔ C72: department and employee ids go comma separated (0.117109ms)
-  ✔ C73: campaign getAll follows has_more over pages 1, 2 and 3 (0.156143ms)
-  ✔ C74: campaign get returns the campaign details (0.109924ms)
-✔ S7 reports, analytics and campaigns (1.228644ms)
+  ✔ C72: department and employee ids go comma separated (0.099804ms)
+  ✔ C73: campaign getAll follows has_more over pages 1, 2 and 3 (0.113104ms)
+  ✔ C74: campaign get returns the campaign details (0.086195ms)
+✔ S7 reports, analytics and campaigns (0.988354ms)
 ▶ S1 request sweep
-  ✔ C8: every request of all 42 operations has the fixed base, the credential and timeout 30000 (13.732268ms)
-✔ S1 request sweep (18.618817ms)
+  ✔ C8: every request of all 42 operations has the fixed base, the credential and timeout 30000 (3.415944ms)
+✔ S1 request sweep (4.003426ms)
 ℹ tests 87
 ℹ suites 14
 ℹ pass 87
@@ -120,7 +120,7 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 808.272398
+ℹ duration_ms 722.226415
 ```
 
 `npm run build && test -f dist/nodes/RdStationConversas/RdStationConversas.node.js && test -f dist/credentials/` - exit 0

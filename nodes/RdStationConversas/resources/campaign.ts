@@ -3,7 +3,7 @@
  */
 import type { IDataObject, INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 
-import { requireId, returnAllAndLimit } from '../helpers';
+import { requireId, returnAllAndLimit, seg } from '../helpers';
 import { locator } from '../locators';
 import { collectPages } from '../pagination';
 import { conversasRequest } from '../transport';
@@ -41,7 +41,7 @@ const properties: INodeProperties[] = [
 const getAll: Handler = async function (i) {
 	const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = this.getNodeParameter('limit', i, 50) as number;
-	const pageSize = returnAll ? 100 : Math.min(limit, 100);
+	const pageSize = returnAll ? 100 : Math.max(2, Math.min(limit, 100));
 	return collectPages<IDataObject>(
 		async (page) => {
 			const response = asObject(
@@ -59,7 +59,7 @@ const getAll: Handler = async function (i) {
 
 const get: Handler = async function (i) {
 	const id = requireId(this, 'campaign', 'Campaign', i);
-	return asObject(await conversasRequest.call(this, 'GET', `/v1/campaigns/${id}`));
+	return asObject(await conversasRequest.call(this, 'GET', `/v1/campaigns/${seg(id)}`));
 };
 
 export const campaignResource: ResourceModule = {
