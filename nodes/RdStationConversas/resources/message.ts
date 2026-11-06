@@ -253,10 +253,10 @@ const send: Handler = async function (i) {
 	}
 	// Todas as validações locais vêm antes de resolver o contato: no modo telefone isso custa uma requisição.
 	const contactId = await resolveContact(this, 'contact', i);
-	const fields: Array<[string, string]> = [
-		['message', text],
-		['sent_by', sentBy],
-	];
+	// Só anexo: não mandamos `message` vazio, que a API pode recusar (formato a provar na conta real).
+	const fields: Array<[string, string]> = [];
+	if (text.trim() !== '') fields.push(['message', text]);
+	fields.push(['sent_by', sentBy]);
 	if (operator !== '') fields.push(['operator', operator]);
 
 	const attachProperty = (this.getNodeParameter('attachBinaryProperty', i, '') as string).trim();

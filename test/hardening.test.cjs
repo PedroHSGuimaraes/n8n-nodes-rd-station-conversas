@@ -402,4 +402,24 @@ describe('S10 hardening', () => {
 		await refused({ ...report, startDate: '' }, "The 'Start Date' parameter is empty [item 0]");
 		await refused({ ...report, endDate: '' }, "The 'End Date' parameter is empty [item 0]");
 	});
+
+	it('C118: an attachment-only message omits the empty message field', async () => {
+		const context = makeContext({
+			params: {
+				resource: 'message',
+				operation: 'send',
+				contact: { mode: 'phone', value: '5511999998888' },
+				message: '',
+				sentBy: 'bot',
+				attachBinaryProperty: 'attach',
+			},
+			binary: { attach: { buffer: Buffer.from('x'), fileName: 'a.png', mimeType: 'image/png' } },
+			responder: (_o, n) => (n === 0 ? { data: { _id: 'c1' } } : { message: 'sent' }),
+		});
+		await run(context);
+		const body = context.requests[1].body;
+		assert.equal(body.has('message'), false);
+		assert.equal(body.get('sent_by'), 'bot');
+		assert.ok(body.get('attach'));
+	});
 });

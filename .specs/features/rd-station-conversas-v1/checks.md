@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-117 checks in 11 slices · 6 one-way doors · 0 open
+118 checks in 11 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -381,6 +381,9 @@ Proof: run unit | ✔ C116:
 
 **C117** - updateByPhone refuses an empty name, an invalid Job JSON is refused and report getAll refuses empty dates (the-judge)
 Proof: run unit | ✔ C117:
+
+**C118** - An attachment-only message omits the empty message field (the-judge)
+Proof: run unit | ✔ C118:
 
 ## Coverage
 
