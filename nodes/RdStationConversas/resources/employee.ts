@@ -22,7 +22,8 @@ const operations: INodePropertyOptions[] = [
 		name: 'Create Many',
 		value: 'createMany',
 		action: 'Create many employees',
-		description: 'Create several employees at once. Needs the Advanced plan and runs in the background, so it returns a job.',
+		description:
+			'Create several employees at once. Needs the Advanced plan and runs in the background, so it returns a job.',
 	},
 	{
 		name: 'Deactivate',
@@ -69,7 +70,8 @@ const properties: INodeProperties[] = [
 		default: [],
 		typeOptions: { loadOptionsMethod: 'getEmployees' },
 		displayOptions: showFor(RESOURCE, ['deactivateMany']),
-		description: 'Employees to deactivate. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		description:
+			'Employees to deactivate. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
 	{
 		displayName: 'Employees',
@@ -88,7 +90,7 @@ const properties: INodeProperties[] = [
 						displayName: 'Email',
 						name: 'email',
 						type: 'string',
-						placeholder: 'name@email.com',
+						placeholder: 'e.g. name@email.com',
 						default: '',
 						required: true,
 						description: 'Email of the employee',
@@ -113,7 +115,8 @@ const properties: INodeProperties[] = [
 							{ name: 'Manager', value: 'manager' },
 							{ name: 'Operator', value: 'operator' },
 						],
-						description: 'Role of the employee. The API documents these values for reading; they are assumed for creation.',
+						description:
+							'Role of the employee. The API documents these values for reading; they are assumed for creation.',
 					},
 				],
 			},

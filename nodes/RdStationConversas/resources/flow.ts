@@ -51,7 +51,8 @@ const properties: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: showFor(RESOURCE, ['resetAllContactsFlow']),
-		description: 'Whether to confirm that the flow of the contacts is restarted. Without it the operation stops before calling the API.',
+		description:
+			'Whether to confirm that the flow of the contacts is restarted. Without it the operation stops before calling the API.',
 	},
 ];
 

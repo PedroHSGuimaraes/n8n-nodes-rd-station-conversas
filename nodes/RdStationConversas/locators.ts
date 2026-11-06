@@ -28,7 +28,6 @@ export function locator(spec: LocatorSpec): INodeProperties {
 			displayName: 'From List',
 			name: 'list',
 			type: 'list',
-			placeholder: 'Select...',
 			typeOptions: { searchListMethod: spec.searchMethod, searchable: true },
 			default: '',
 		} as INodePropertyMode,

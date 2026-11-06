@@ -12,6 +12,8 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
+import * as listSearch from './methods/listSearch';
+import * as loadOptions from './methods/loadOptions';
 import { resources } from './registry';
 
 export class RdStationConversas implements INodeType {
@@ -42,6 +44,9 @@ export class RdStationConversas implements INodeType {
 			...resources.flatMap((resource) => resource.properties),
 		],
 	};
+
+	// Listas pesquisáveis (modo "From List") e menus suspensos carregados da API.
+	methods = { listSearch, loadOptions };
 
 	/**
 	 * Roda cada item de entrada: lê recurso e operação, chama a função da operação

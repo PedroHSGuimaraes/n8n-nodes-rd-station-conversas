@@ -27,7 +27,8 @@ const operations: INodePropertyOptions[] = [
 		name: 'Remove All Contacts',
 		value: 'removeAllContacts',
 		action: 'Remove all contacts from a wallet',
-		description: 'Warning: removes every contact from the chosen wallet. The contacts are not deleted.',
+		description:
+			'Warning: removes every contact from the chosen wallet. The contacts are not deleted.',
 	},
 	{
 		name: 'Remove Contact',
