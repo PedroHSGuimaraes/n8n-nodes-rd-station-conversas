@@ -334,7 +334,7 @@ Proof: walk - owner tags v1.0.0 after testing with a real account; then run `npm
 ## Handoff
 
 - **Settled mid-build:** (1) The restart operation needs `Confirm Restart` (`confirmRestart`, boolean, default false); without it the operation fails before any request (owner, 06/11/2026, AD-013). (2) Tag `v1.0.0` only after the owner tests with a real account (JWE format of the history, message sending): version 1.0.0, CHANGELOG and ready workflows now, no tag; README explains `npm run dev` and the JWK key (owner, 06/11/2026, AD-014).
-- **Dispatched:** none
-- **Boundary:** none
+- **Dispatched:** Verifier round 1 at f385b77 (fresh sonnet sub-agent), sent after check_proofs 93 pass
+- **Boundary:** C1-C90 closed at f385b77; C91 stays open by owner decision AD-014
 - **Abandoned:** none
 - **Walked:** C91 is a walk: after the owner tags v1.0.0 the npm check runs; it stays open by owner decision.
