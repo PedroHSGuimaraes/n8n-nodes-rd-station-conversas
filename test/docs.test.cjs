@@ -109,6 +109,9 @@ describe('S9 documentation', () => {
 		]) {
 			assert.match(readme, new RegExp(`^## \\S+ ${title}`, 'm'), `README sem a seção ${title}`);
 		}
+		// `Recursos` sozinho casaria com `Recursos e operações` no laço acima (regex sem âncora no fim);
+		// este assert exige o título exato, para a seção de links não poder sumir sem o teste falhar.
+		assert.match(readme, /^## \S+ Recursos$/m, 'README sem a seção Recursos');
 		// A seção de IA traz a variável que liga a tool e o `$fromAI` com operação real do pacote.
 		assert.match(readme, /N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true/);
 		assert.match(readme, /\$fromAI\(/);
