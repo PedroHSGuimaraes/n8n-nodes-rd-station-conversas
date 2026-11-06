@@ -100,12 +100,21 @@ describe('S10 hardening', () => {
 	});
 
 	it('C97: a CPF without 11 digits is refused', async () => {
-		for (const cpf of ['', 'abc', '123.456']) {
+		// 12 dígitos passa do limite de 11 e também é recusado (achado F6 da the-judge).
+		for (const cpf of ['', 'abc', '123.456', '123.456.789-012']) {
 			await refused(
 				{ resource: 'contact', operation: 'getByCpf', cpf },
 				"The 'CPF' parameter is invalid [item 0]",
 			);
 		}
+	});
+
+	it('C97b: a CPF with exactly 11 digits is accepted as the control case', async () => {
+		const context = makeContext({
+			params: { resource: 'contact', operation: 'getByCpf', cpf: '123.456.789-09' },
+		});
+		await run(context);
+		assert.equal(context.requests.length, 1);
 	});
 
 	it('C98: Update and Update by Phone show only their own extra fields', () => {
