@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-116 checks in 11 slices · 6 one-way doors · 0 open
+117 checks in 11 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -378,6 +378,9 @@ Proof: run unit | ✔ C115:
 
 **C116** - latin1 text with a UTF-8-looking pair and a stray byte decrypts intact (the-judge)
 Proof: run unit | ✔ C116:
+
+**C117** - updateByPhone refuses an empty name, an invalid Job JSON is refused and report getAll refuses empty dates (the-judge)
+Proof: run unit | ✔ C117:
 
 ## Coverage
 

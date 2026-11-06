@@ -375,4 +375,31 @@ describe('S10 hardening', () => {
 			"The 'Message' parameter is empty [item 0]",
 		);
 	});
+
+	// F27: casos que as claims C96, C99 e C100 citam e os testes originais não cobriam.
+	it('C117: updateByPhone refuses an empty name, Job JSON must be valid and report getAll refuses empty dates', async () => {
+		await refused(
+			{ resource: 'contact', operation: 'updateByPhone', phone: '5511999998888', fullName: '' },
+			"The 'Full Name' parameter is empty [item 0]",
+		);
+		await refused(
+			{
+				resource: 'contact',
+				operation: 'create',
+				phone: '5511999998888',
+				fullName: 'A',
+				integration: 'i',
+				additionalFields: { job: '{bad' },
+			},
+			"The 'Job (JSON)' parameter is invalid [item 0]",
+		);
+		const report = {
+			resource: 'report',
+			operation: 'getAll',
+			startDate: '2026-10-01T00:00:00',
+			endDate: '2026-10-31T00:00:00',
+		};
+		await refused({ ...report, startDate: '' }, "The 'Start Date' parameter is empty [item 0]");
+		await refused({ ...report, endDate: '' }, "The 'End Date' parameter is empty [item 0]");
+	});
 });
