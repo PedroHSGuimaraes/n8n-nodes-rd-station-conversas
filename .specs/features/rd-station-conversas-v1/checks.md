@@ -410,7 +410,7 @@ Proof: run unit | ✔ C115:
 ## Handoff
 
 - **Settled mid-build:** (1) The restart operation needs `Confirm Restart` (`confirmRestart`, boolean, default false); without it the operation fails before any request (owner, 06/11/2026, AD-013). (2) Tag `v1.0.0` only after the owner tests with a real account (JWE format of the history, message sending): version 1.0.0, CHANGELOG and ready workflows now, no tag; README explains `npm run dev` and the JWK key (owner, 06/11/2026, AD-014).
-- **Dispatched:** Verifier round 1 at f385b77 (fresh sonnet sub-agent), sent after check_proofs 93 pass
+- **Dispatched:** Verifier round 1 at f385b77 (fresh sonnet sub-agent), returned; Verifier round 2 at 470b994 (fresh sonnet sub-agent) judges C92-C115, sent after check_proofs pass
 - **Boundary:** C1-C90 closed at f385b77; C91 stays open by owner decision AD-014
 - **Abandoned:** C91 (npm view after the tag) stays open by AD-014; F18 wire formats wait for the real-account test
 - **Walked:** C91 is a walk: after the owner tags v1.0.0 the npm check runs; it stays open by owner decision.
