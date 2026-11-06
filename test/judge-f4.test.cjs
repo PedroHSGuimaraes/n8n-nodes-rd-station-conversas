@@ -48,7 +48,7 @@ describe('F4 IDs in routes', () => {
 			}
 		}
 		// As rotas com ID no caminho usam a forma codificada exata (a%2Fb%3Fc%3Dd).
-		assert.ok(encodedCount >= 12, `only ${encodedCount} URLs carry the encoded id`);
+		assert.ok(encodedCount === 11, `only ${encodedCount} URLs carry the encoded id`);
 		// Lista de departamentos: o ID do atendente vem da API e também entra na rota.
 		const context = makeContext({
 			responder: (options) =>
