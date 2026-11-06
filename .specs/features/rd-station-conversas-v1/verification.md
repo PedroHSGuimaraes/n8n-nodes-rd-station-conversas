@@ -128,6 +128,7 @@ Round 1 judged C1 to C91 (F1 to F23). Round 2 judged C92 to C115 and found F24 t
 | C116 | `judge-f1.test.cjs` `C116: latin1 text with a UTF-8-looking pair and a stray byte decrypts intact` | yes - builder row for F25; no later Verifier round |
 | C117 | `hardening.test.cjs` `C117: updateByPhone refuses an empty name, ...` | yes - builder row for F27 |
 | C118 | `hardening.test.cjs` `C118: an attachment-only message omits the empty message field` | yes - builder row for F28; red before the fix |
+| C119 | `foundation.test.cjs` `C119: publish.yml stages the package with npm 12 instead of publishing it` | yes - reads only `run:` lines, so a comment quoting the command does not count; fails without an `npm@12.2.2 stage publish ... --provenance` step, fails if `npm publish` or `npm run release` comes back, requires `RELEASE_MODE` and `NODE_AUTH_TOKEN` inside that step's own block, a `workflow_dispatch` trigger and the same `node-version` as `ci.yml` (judged by the orchestrator, not the author of the test) |
 
 ## Findings
 
