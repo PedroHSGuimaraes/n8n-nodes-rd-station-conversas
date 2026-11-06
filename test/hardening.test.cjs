@@ -55,11 +55,28 @@ describe('S10 hardening', () => {
 				{ resource: 'campaign', operation: 'getAll' },
 				() => ({ campaigns: [{ id: 'a' }, { id: 'b' }], has_more: false }),
 			],
+			[
+				{
+					resource: 'report',
+					operation: 'getAll',
+					startDate: '2026-10-01T00:00:00',
+					endDate: '2026-10-31T00:00:00',
+				},
+				() => ({ docs: [{ id: 'a' }, { id: 'b' }] }),
+			],
+			[
+				{
+					resource: 'report',
+					operation: 'getCampaignReport',
+					campaign: { mode: 'id', value: 'cp' },
+				},
+				() => ({ docs: [{ id: 'a' }, { id: 'b' }], pages: 1 }),
+			],
 		];
 		for (const [params, responder] of cases) {
 			const context = makeContext({ params: { ...params, returnAll: false, limit: 1 }, responder });
 			const out = await run(context);
-			assert.ok(context.requests[0].qs.limit >= 2, params.resource);
+			assert.ok(context.requests[0].qs.limit >= 2, `${params.resource}.${params.operation}`);
 			assert.equal(out.length, 1);
 		}
 	});
