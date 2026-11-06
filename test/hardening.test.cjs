@@ -336,4 +336,17 @@ describe('S10 hardening', () => {
 			assert.equal(sent.url, BASE + route, `${resource}.${operation} url`);
 		}
 	});
+
+	it('C114: send refuses an empty message in phone mode with zero requests', async () => {
+		// Modo telefone: a mensagem vazia é recusada antes de gastar a requisição que resolve o contato.
+		await refused(
+			{
+				resource: 'message',
+				operation: 'send',
+				contact: { mode: 'phone', value: '5511999998888' },
+				message: '',
+			},
+			"The 'Message' parameter is empty [item 0]",
+		);
+	});
 });

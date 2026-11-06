@@ -245,14 +245,14 @@ const send: Handler = async function (i) {
 			);
 		}
 	}
-	// Resolve o contato só depois das validações locais, para não gastar requisição à toa.
-	const contactId = await resolveContact(this, 'contact', i);
 	const text = String(this.getNodeParameter('message', i, '') ?? '');
 	const attachName = String(this.getNodeParameter('attachBinaryProperty', i, '') ?? '').trim();
 	// Sem texto e sem anexo a API receberia uma mensagem vazia.
 	if (text.trim() === '' && attachName === '') {
 		fail(this, "The 'Message' parameter is empty", 'Write the message or attach a file', i);
 	}
+	// Todas as validações locais vêm antes de resolver o contato: no modo telefone isso custa uma requisição.
+	const contactId = await resolveContact(this, 'contact', i);
 	const fields: Array<[string, string]> = [
 		['message', text],
 		['sent_by', sentBy],
