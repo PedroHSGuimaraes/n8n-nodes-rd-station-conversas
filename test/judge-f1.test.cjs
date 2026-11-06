@@ -19,6 +19,19 @@ describe('F1 JWE text encoding', () => {
 		limit: 100,
 	};
 
+	// Texto latin1 que contém um par que também é UTF-8 válido ("Ã©") seguido de byte solto: só o byte solto
+	// denuncia o latin1, e o resultado precisa voltar intacto.
+	it('C116: latin1 text with a UTF-8-looking pair and a stray byte decrypts intact', async () => {
+		const context = makeContext({
+			params,
+			credentials,
+			responder: () => ({
+				messages: encryptJwe([{ content: 'Ã©á' }], publicKey, 'A128GCM', 'latin1'),
+			}),
+		});
+		assert.deepEqual(await run(context), [{ content: 'Ã©á' }]);
+	});
+
 	for (const [label, encoding] of [
 		['C110: UTF-8 bytes', 'utf8'],
 		['C111: latin1 bytes (node-jose string path)', 'latin1'],

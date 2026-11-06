@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-115 checks in 11 slices · 6 one-way doors · 0 open
+116 checks in 11 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -375,6 +375,9 @@ Proof: run unit | ✔ C114:
 
 **C115** - No URL of any operation or dynamic list carries a raw / or ? taken from an ID (the-judge)
 Proof: run unit | ✔ C115:
+
+**C116** - latin1 text with a UTF-8-looking pair and a stray byte decrypts intact (the-judge)
+Proof: run unit | ✔ C116:
 
 ## Coverage
 
