@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-109 checks in 10 slices · 6 one-way doors · 0 open
+111 checks in 11 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -355,6 +355,14 @@ Proof: run unit | ✔ C108:
 
 **C109** - All 42 operations use their documented HTTP method and route (F17)
 Proof: run unit | ✔ C109:
+
+### S11 - the-judge findings
+
+**C110** - A JWE text encrypted as UTF-8 decrypts with its accents (the-judge)
+Proof: run unit | ✔ C110:
+
+**C111** - A JWE text encrypted as latin1 (node-jose string path) decrypts with its accents (the-judge)
+Proof: run unit | ✔ C111:
 
 ## Coverage
 

@@ -31,6 +31,18 @@ const ENC_SPECS: Record<string, { gcm: boolean; bits: number; hash?: string }> =
 	'A256CBC-HS512': { gcm: false, bits: 256, hash: 'sha512' },
 };
 
+// Decodifica o texto aberto. O node-jose grava uma string passada ao `update` como latin1
+// (exemplo oficial conversas-v2-encryption), e UTF-8 puro leria "á" como "�". Tentamos UTF-8
+// estrito primeiro; se os bytes não forem UTF-8 válido, caímos para latin1. Qual dos dois a API
+// usa de verdade fica para o teste com conta real (AD-015).
+function decodeText(bytes: Buffer): string {
+	try {
+		return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+	} catch {
+		return bytes.toString('latin1');
+	}
+}
+
 // Lê uma parte base64url do JWE como bytes.
 const part = (value: string): Buffer => Buffer.from(value, 'base64url');
 
@@ -99,7 +111,7 @@ export function decryptJwe(compact: string, jwk: Record<string, unknown>): JweRe
 			const decipher = createDecipheriv(`aes-${spec.bits}-cbc`, cek.subarray(half), iv);
 			plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
 		}
-		return { ok: true, value: JSON.parse(plaintext.toString('utf8')) as unknown };
+		return { ok: true, value: JSON.parse(decodeText(plaintext)) as unknown };
 	} catch (error) {
 		return failure(enc, (error as Error).message);
 	}

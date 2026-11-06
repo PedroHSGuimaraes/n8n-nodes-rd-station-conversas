@@ -25,14 +25,15 @@ function makeKeys() {
 }
 
 /** Cifra `payload` (qualquer valor JSON) com RSA-OAEP-256 e o `enc` pedido. */
-function encryptJwe(payload, publicKey, enc) {
+function encryptJwe(payload, publicKey, enc, encoding = 'utf8') {
 	const spec = ENC[enc];
 	const keyBytes = spec.gcm ? spec.bits / 8 : (spec.bits / 8) * 2;
 	const cek = crypto.randomBytes(keyBytes);
 	const iv = crypto.randomBytes(spec.gcm ? 12 : 16);
 	const header = b64u(JSON.stringify({ alg: 'RSA-OAEP-256', enc }));
 	const aad = Buffer.from(header, 'ascii');
-	const plaintext = Buffer.from(JSON.stringify(payload));
+	// `encoding` imita o node-jose, que grava uma string passada ao `update` como latin1.
+	const plaintext = Buffer.from(JSON.stringify(payload), encoding);
 	let ciphertext;
 	let tag;
 	if (spec.gcm) {
