@@ -1,9 +1,9 @@
 # rd-station-conversas-v1 proofs
 
-**HEAD**: 470b994
+**HEAD**: caa28ad
 **Tree**: clean
 **Shell**: /bin/sh
-**Result**: 117 pass, 0 fail
+**Result**: 120 pass, 0 fail
 
 | Check | Proof | Result |
 | --- | --- | --- |
@@ -122,6 +122,9 @@
 | C113 | `run unit / ✔ C113:` | pass |
 | C114 | `run unit / ✔ C114:` | pass |
 | C115 | `run unit / ✔ C115:` | pass |
+| C116 | `run unit / ✔ C116:` | pass |
+| C117 | `run unit / ✔ C117:` | pass |
+| C118 | `run unit / ✔ C118:` | pass |
 | Build | `npx tsc --noEmit` | pass |
 | Build | `npm run lint` | pass |
 
@@ -130,21 +133,21 @@
 `Run unit` - exit 0
 
 ```
-  ✔ C72: department and employee ids go comma separated (0.083785ms)
-  ✔ C73: campaign getAll follows has_more over pages 1, 2 and 3 (0.121497ms)
-  ✔ C74: campaign get returns the campaign details (0.090096ms)
-✔ S7 reports, analytics and campaigns (0.93879ms)
+  ✔ C72: department and employee ids go comma separated (0.084654ms)
+  ✔ C73: campaign getAll follows has_more over pages 1, 2 and 3 (0.112454ms)
+  ✔ C74: campaign get returns the campaign details (0.081714ms)
+✔ S7 reports, analytics and campaigns (0.969832ms)
 ▶ S1 request sweep
-  ✔ C8: every request of all 42 operations has the fixed base, the credential and timeout 30000 (7.49456ms)
-✔ S1 request sweep (8.337157ms)
-ℹ tests 114
+  ✔ C8: every request of all 42 operations has the fixed base, the credential and timeout 30000 (3.693285ms)
+✔ S1 request sweep (4.354543ms)
+ℹ tests 117
 ℹ suites 20
-ℹ pass 114
+ℹ pass 117
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 936.492759
+ℹ duration_ms 964.745889
 ```
 
 `npm run build && test -f dist/nodes/RdStationConversas/RdStationConversas.node.js && test -f dist/credentials/` - exit 0
