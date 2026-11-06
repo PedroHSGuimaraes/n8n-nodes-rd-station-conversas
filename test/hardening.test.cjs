@@ -247,4 +247,93 @@ describe('S10 hardening', () => {
 			"The 'Message' parameter is empty [item 0]",
 		);
 	});
+
+	it('C107: createMany returns the id when the API job is a plain string and a non-string wallet does not crash', async () => {
+		const context = makeContext({
+			params: {
+				resource: 'employee',
+				operation: 'createMany',
+				employees: { items: [{ email: 'a@x.com', name: 'A', role: 'admin' }] },
+			},
+			responder: () => ({ job: 'j1' }),
+		});
+		assert.deepEqual(await run(context), [{ id: 'j1' }]);
+		const wallet = makeContext({
+			params: { resource: 'wallet', operation: 'removeAllContacts', wallet: 5 },
+		});
+		await run(wallet);
+		assert.deepEqual(wallet.requests[0].body, { wallet_name: '5' });
+	});
+
+	it('C108: Reset All Contacts Flow posts once per execution even with three input items', async () => {
+		const context = makeContext({
+			items: 3,
+			params: { resource: 'flow', operation: 'resetAllContactsFlow', confirmRestart: true },
+			responder: () => ({ message: 'done' }),
+		});
+		const out = await run(context);
+		assert.equal(context.requests.length, 1);
+		assert.equal(out.length, 3);
+	});
+
+	it('C109: every operation uses its documented HTTP method and route', async () => {
+		const routes = {
+			'contact.getAll': ['GET', '/v2/customers'],
+			'contact.getByPhone': ['GET', '/v2/contacts/5511999998888/exists'],
+			'contact.getByCpf': ['GET', '/v2/contacts/cpf/12345678909/exists'],
+			'contact.create': ['POST', '/v2/contacts/whatsapp-business-by-brokers'],
+			'contact.update': ['PUT', '/v2/contacts/whatsapp-business-by-brokers'],
+			'contact.updateByPhone': ['PATCH', '/v2/contacts/5511999998888'],
+			'contact.createMany': ['POST', '/v2/contacts/bulk'],
+			'contact.deleteManyByTag': ['DELETE', '/v2/contacts'],
+			'contact.deleteManyByIntegration': ['DELETE', '/v2/contacts'],
+			'customField.getAll': ['GET', '/v2/custom-fields'],
+			'customField.create': ['POST', '/v2/custom-fields'],
+			'customField.get': ['GET', '/v2/custom-fields/f'],
+			'customField.update': ['PUT', '/v2/custom-fields/f'],
+			'customField.delete': ['DELETE', '/v2/custom-fields/f'],
+			'employee.getAll': ['GET', '/v2/employees'],
+			'employee.get': ['GET', '/v1/employees/e'],
+			'employee.activate': ['PUT', '/v2/employees/e/activate'],
+			'employee.deactivate': ['PUT', '/v2/employees/e/deactivate'],
+			'employee.createMany': ['POST', '/v2/employees/bulk'],
+			'employee.deactivateMany': ['PATCH', '/v2/employees/deactivate'],
+			'flow.getAll': ['GET', '/v2/flows'],
+			'flow.forwardContact': ['POST', '/v2/forward-to-customer'],
+			'flow.resetAllContactsFlow': ['POST', '/v2/reset-customers-flow-processes'],
+			'crmWorkflow.getAll': ['GET', '/v2/workflows'],
+			'job.get': ['GET', '/v2/jobs/j'],
+			'message.send': ['POST', '/v2/messages/c/send'],
+			'message.sendTemplate': ['POST', '/v3/messages/template/send'],
+			'message.getHistory': ['GET', '/v2/messages/history'],
+			'report.getAll': ['GET', '/v4/reports'],
+			'report.getCampaignReport': ['GET', '/v4/reports/campaign/cp'],
+			'template.getAll': ['GET', '/v2/template/all'],
+			'wallet.getAll': ['GET', '/v2/wallets'],
+			'wallet.addContact': ['POST', '/v2/wallets'],
+			'wallet.removeContact': ['PATCH', '/v2/wallets/c'],
+			'wallet.removeAllContacts': ['POST', '/v2/customers/wallets/remove-all'],
+			'whatsappIntegration.getAll': ['GET', '/v2/whatsapp/integrations'],
+			'analytics.getAttendanceSummary': ['GET', '/v1/analytics/attendances/summary'],
+			'analytics.getRetention': ['GET', '/v1/analytics/attendances/retention'],
+			'analytics.getReviewsAverage': ['GET', '/v1/analytics/attendances/reviews/average'],
+			'analytics.getContactsOrigin': ['GET', '/v1/analytics/contacts/origin'],
+			'campaign.getAll': ['GET', '/v1/campaigns'],
+			'campaign.get': ['GET', '/v1/campaigns/cp'],
+		};
+		assert.equal(Object.keys(routes).length, 42);
+		const { OPERATIONS } = require('./sweep.test.cjs');
+		for (const [resource, operation, params] of OPERATIONS) {
+			const context = makeContext({
+				params: { resource, operation, ...params },
+				credentials: { apiToken: 't', privateKeyJwk: '{}' },
+				responder: () => ({}),
+			});
+			await run(context);
+			const [method, route] = routes[`${resource}.${operation}`];
+			const sent = context.requests[context.requests.length - 1];
+			assert.equal(sent.method, method, `${resource}.${operation} method`);
+			assert.equal(sent.url, BASE + route, `${resource}.${operation} url`);
+		}
+	});
 });

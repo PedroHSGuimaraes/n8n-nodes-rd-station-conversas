@@ -23,6 +23,7 @@ const customFieldLocator = (operations: string[]): INodeProperties =>
 		operations,
 	});
 
+// Cria o registro com os campos obrigatórios e só os opcionais preenchidos.
 const create: Handler = async function (i) {
 	// O corpo leva só os dois campos que a API aceita ao criar.
 	const body: IDataObject = {
@@ -32,11 +33,13 @@ const create: Handler = async function (i) {
 	return asObject(await conversasRequest.call(this, 'POST', '/v2/custom-fields', { body }));
 };
 
+// Lê um registro pelo ID escolhido e devolve a resposta da API.
 const get: Handler = async function (i) {
 	const id = requireId(this, 'customField', 'Custom Field', i);
 	return asObject(await conversasRequest.call(this, 'GET', `/v2/custom-fields/${seg(id)}`));
 };
 
+// Atualiza o registro enviando só os campos que a rota aceita.
 const update: Handler = async function (i) {
 	const id = requireId(this, 'customField', 'Custom Field', i);
 	// Só `info` muda: a API não deixa editar o `label` de um campo já criado.
@@ -46,6 +49,7 @@ const update: Handler = async function (i) {
 	);
 };
 
+// Apaga o registro; a API responde 204 sem corpo, então devolvemos `{ deleted: true }`.
 const remove: Handler = async function (i) {
 	const id = requireId(this, 'customField', 'Custom Field', i);
 	// A API responde 204 sem corpo; devolvemos o item padrão de exclusão.
@@ -53,6 +57,7 @@ const remove: Handler = async function (i) {
 	return DELETED;
 };
 
+// Lista os registros da rota de listagem e devolve um item por registro.
 const getAll: Handler = async function (i) {
 	const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = this.getNodeParameter('limit', i, 50) as number;

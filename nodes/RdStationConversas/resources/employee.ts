@@ -124,10 +124,12 @@ const properties: INodeProperties[] = [
 	},
 ];
 
+// Lista os registros da rota de listagem e devolve um item por registro.
 const getAll: Handler = async function () {
 	return asList(await conversasRequest.call(this, 'GET', '/v2/employees'), 'employees');
 };
 
+// Lê um registro pelo ID escolhido e devolve a resposta da API.
 const get: Handler = async function (i) {
 	const id = requireId(this, 'employee', 'Employee', i);
 	return asObject(await conversasRequest.call(this, 'GET', `/v1/employees/${seg(id)}`));
@@ -140,6 +142,7 @@ const toggle = (action: 'activate' | 'deactivate'): Handler =>
 		return asObject(await conversasRequest.call(this, 'PUT', `/v2/employees/${seg(id)}/${action}`));
 	};
 
+// Desativa vários atendentes; recusa lista vazia e devolve uma linha por atendente.
 const deactivateMany: Handler = async function (i) {
 	const raw = this.getNodeParameter('employeeIds', i, []) as string[] | string;
 	// Aceita a lista do n8n e também texto separado por vírgula vindo de expressão.
@@ -159,6 +162,7 @@ const deactivateMany: Handler = async function (i) {
 	}));
 };
 
+// Cria vários registros de uma vez; devolve o job para acompanhar com Job: Get.
 const createMany: Handler = async function (i) {
 	const rows =
 		((this.getNodeParameter('employees', i, {}) as IDataObject).items as IDataObject[]) ?? [];
@@ -168,7 +172,8 @@ const createMany: Handler = async function (i) {
 	const response = asObject(
 		await conversasRequest.call(this, 'POST', '/v2/employees/bulk', { body: { employees } }),
 	);
-	return asObject(response.job);
+	// A API pode devolver só o id do job em texto; guardamos como `{ id }` para não perder o dado.
+	return typeof response.job === 'string' ? { id: response.job } : asObject(response.job);
 };
 
 export const employeeResource: ResourceModule = {

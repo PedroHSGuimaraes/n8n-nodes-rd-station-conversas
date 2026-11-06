@@ -118,6 +118,7 @@ const iso = (value: unknown): string =>
 const joined = (value: unknown): string =>
 	(Array.isArray(value) ? (value as string[]) : splitList(value)).join(',');
 
+// Cria o handler de uma operação de analytics: datas, fuso e filtros viram a query.
 const analytics = (operation: string): Handler =>
 	async function (i) {
 		const start = this.getNodeParameter('startDate', i, '');

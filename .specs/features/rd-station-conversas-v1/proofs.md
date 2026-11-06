@@ -1,9 +1,9 @@
 # rd-station-conversas-v1 proofs
 
-**HEAD**: 4aea005
+**HEAD**: dcf52be
 **Tree**: clean
 **Shell**: /bin/sh
-**Result**: 93 pass, 0 fail
+**Result**: 108 pass, 0 fail
 
 | Check | Proof | Result |
 | --- | --- | --- |
@@ -98,6 +98,21 @@
 | C89 | `run unit / ✔ C89:` | pass |
 | C90 | `run unit / ✔ C90:` | pass |
 | C91 | `walk - owner tags v1.0.0 after testing with a real account; then run npm view n8n-nodes-rd-station-conversas v` | pass (Walked) |
+| C92 | `run unit / ✔ C92:` | pass |
+| C93 | `run unit / ✔ C93:` | pass |
+| C94 | `run unit / ✔ C94:` | pass |
+| C95 | `run unit / ✔ C95:` | pass |
+| C96 | `run unit / ✔ C96:` | pass |
+| C97 | `run unit / ✔ C97:` | pass |
+| C98 | `run unit / ✔ C98:` | pass |
+| C99 | `run unit / ✔ C99:` | pass |
+| C100 | `run unit / ✔ C100:` | pass |
+| C101 | `run unit / ✔ C101:` | pass |
+| C102 | `run unit / ✔ C102:` | pass |
+| C103 | `run unit / ✔ C103:` | pass |
+| C104 | `run unit / ✔ C104:` | pass |
+| C105 | `run unit / ✔ C105:` | pass |
+| C106 | `run unit / ✔ C106:` | pass |
 | Build | `npx tsc --noEmit` | pass |
 | Build | `npm run lint` | pass |
 
@@ -106,21 +121,21 @@
 `Run unit` - exit 0
 
 ```
-  ✔ C72: department and employee ids go comma separated (0.099804ms)
-  ✔ C73: campaign getAll follows has_more over pages 1, 2 and 3 (0.113104ms)
-  ✔ C74: campaign get returns the campaign details (0.086195ms)
-✔ S7 reports, analytics and campaigns (0.988354ms)
+  ✔ C72: department and employee ids go comma separated (0.097632ms)
+  ✔ C73: campaign getAll follows has_more over pages 1, 2 and 3 (0.12593ms)
+  ✔ C74: campaign get returns the campaign details (0.093604ms)
+✔ S7 reports, analytics and campaigns (1.034519ms)
 ▶ S1 request sweep
-  ✔ C8: every request of all 42 operations has the fixed base, the credential and timeout 30000 (3.415944ms)
-✔ S1 request sweep (4.003426ms)
-ℹ tests 87
-ℹ suites 14
-ℹ pass 87
+  ✔ C8: every request of all 42 operations has the fixed base, the credential and timeout 30000 (3.64375ms)
+✔ S1 request sweep (4.223273ms)
+ℹ tests 102
+ℹ suites 15
+ℹ pass 102
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 722.226415
+ℹ duration_ms 770.300693
 ```
 
 `npm run build && test -f dist/nodes/RdStationConversas/RdStationConversas.node.js && test -f dist/credentials/` - exit 0
@@ -131,7 +146,7 @@
 
 ┌   n8n-node build  v0.55.5
 │
-◒  Building TypeScript files◐  Building TypeScript files◓  Building TypeScript files◑  Building TypeScript files◒  Building TypeScript files◐  Building TypeScript files◓  Building TypeScript files◑  Building TypeScript files◒  Building TypeScript files.◐  Building TypeScript files.◓  Building TypeScript files.◑  Building TypeScript files.◒  Building TypeScript files.◐  Building TypeScript files.◇  TypeScript build successful
+◒  Building TypeScript files◐  Building TypeScript files◓  Building TypeScript files◑  Building TypeScript files◒  Building TypeScript files◐  Building TypeScript files◓  Building TypeScript files◑  Building TypeScript files◒  Building TypeScript files.◐  Building TypeScript files.◓  Building TypeScript files.◑  Building TypeScript files.◒  Building TypeScript files.◐  Building TypeScript files.◓  Building TypeScript files.◑  Building TypeScript files.◇  TypeScript build successful
 │
 ◇  Copied static files
 │

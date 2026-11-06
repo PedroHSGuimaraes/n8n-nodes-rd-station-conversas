@@ -2,7 +2,7 @@
  * Recurso "Flow": os fluxos (chatbot) do Conversas. Lista, encaminha um contato
  * para um fluxo e reinicia o fluxo dos contatos (operação de risco, com confirmação).
  */
-import type { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
+import type { IDataObject, INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 
 import { fail, requireId, resolveContact, showFor } from '../helpers';
 import { locator } from '../locators';
@@ -10,6 +10,9 @@ import { conversasRequest } from '../transport';
 import { type Handler, type ResourceModule, asList, asObject, operationProperty } from './types';
 
 const RESOURCE = 'flow';
+
+// Resultado do reinício por contexto de execução (WeakMap: some sozinho quando a execução acaba): os itens seguintes reaproveitam a resposta sem nova chamada.
+const resetDone = new WeakMap<object, IDataObject>();
 
 const operations: INodePropertyOptions[] = [
 	{
@@ -56,10 +59,12 @@ const properties: INodeProperties[] = [
 	},
 ];
 
+// Lista os registros da rota de listagem e devolve um item por registro.
 const getAll: Handler = async function () {
 	return asList(await conversasRequest.call(this, 'GET', '/v2/flows'), 'flows');
 };
 
+// Encaminha o contato para um fluxo.
 const forwardContact: Handler = async function (i) {
 	const customer = await resolveContact(this, 'contact', i);
 	const flow = requireId(this, 'flow', 'Flow', i);
@@ -70,6 +75,7 @@ const forwardContact: Handler = async function (i) {
 	);
 };
 
+// Reinicia o fluxo dos contatos; exige `Confirm Restart` e roda uma vez por execução.
 const resetAllContactsFlow: Handler = async function (i) {
 	// A rota pode valer para todos os contatos: sem confirmação nada é enviado (AD-013).
 	if (this.getNodeParameter('confirmRestart', i, false) !== true) {
@@ -80,7 +86,14 @@ const resetAllContactsFlow: Handler = async function (i) {
 			i,
 		);
 	}
-	return asObject(await conversasRequest.call(this, 'POST', '/v2/reset-customers-flow-processes'));
+	// A rota é global: com vários itens de entrada ela dispararia vários reinícios. Uma vez por execução basta.
+	const already = resetDone.get(this);
+	if (already) return already;
+	const result = asObject(
+		await conversasRequest.call(this, 'POST', '/v2/reset-customers-flow-processes'),
+	);
+	resetDone.set(this, result);
+	return result;
 };
 
 export const flowResource: ResourceModule = {

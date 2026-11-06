@@ -57,6 +57,7 @@ export async function searchContacts(
 	};
 }
 
+// Lista pesquisável de templates pelo título.
 export async function searchTemplates(
 	this: ILoadOptionsFunctions,
 	filter?: string,
@@ -65,6 +66,7 @@ export async function searchTemplates(
 	return { results: toResults(listOf(response, 'templates'), 'title', 'id', filter) };
 }
 
+// Lista pesquisável de atendentes pelo nome.
 export async function searchEmployees(
 	this: ILoadOptionsFunctions,
 	filter?: string,
@@ -73,6 +75,7 @@ export async function searchEmployees(
 	return { results: toResults(listOf(response, 'employees'), 'name', 'id', filter) };
 }
 
+// Lista pesquisável de fluxos pelo título.
 export async function searchFlows(
 	this: ILoadOptionsFunctions,
 	filter?: string,
@@ -81,6 +84,7 @@ export async function searchFlows(
 	return { results: toResults(listOf(response, 'flows'), 'title', 'id', filter) };
 }
 
+// Lista pesquisável de campanhas, seguindo `has_more`.
 export async function searchCampaigns(
 	this: ILoadOptionsFunctions,
 	filter?: string,
@@ -97,6 +101,7 @@ export async function searchCampaigns(
 	};
 }
 
+// Lista pesquisável de campos personalizados; a busca vai no `label` da rota.
 export async function searchCustomFields(
 	this: ILoadOptionsFunctions,
 	filter?: string,

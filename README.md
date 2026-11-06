@@ -103,6 +103,8 @@ O node **não checa o plano**: quem responde é a API. O histórico de mensagens
 - Contatos e campanhas são paginados de 100 em 100, e o relatório de campanha de 50 em 50.
 - A documentação não informa limite de taxa nem `429`; o erro, se vier, aparece como erro da API.
 - A lista de **Departments** é montada a partir dos 50 primeiros atendentes (a API não tem rota de departamentos).
+- A busca por nome na lista de contatos filtra a página de 100 contatos carregada; se o contato não aparecer, role a lista ou cole o ID ou o telefone.
+- Três formatos ainda não foram provados com a API real e dependem do seu teste: arrays na query do histórico (`channel`, `sent_by`, `type`), o corpo de envio (urlencoded e multipart) e o par `recipient_number` mais `country_code` do template.
 - Criações em massa rodam em segundo plano: use **Job: Get** em um laço com _Wait_ para acompanhar.
 
 ## 🛠️ Desenvolvimento e teste local

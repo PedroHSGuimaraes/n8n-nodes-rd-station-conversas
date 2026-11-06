@@ -38,6 +38,7 @@ const properties: INodeProperties[] = [
 	...returnAllAndLimit(RESOURCE, ['getAll']),
 ];
 
+// Lista os registros da rota de listagem e devolve um item por registro.
 const getAll: Handler = async function (i) {
 	const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = this.getNodeParameter('limit', i, 50) as number;
@@ -57,6 +58,7 @@ const getAll: Handler = async function (i) {
 	);
 };
 
+// Lê um registro pelo ID escolhido e devolve a resposta da API.
 const get: Handler = async function (i) {
 	const id = requireId(this, 'campaign', 'Campaign', i);
 	return asObject(await conversasRequest.call(this, 'GET', `/v1/campaigns/${seg(id)}`));

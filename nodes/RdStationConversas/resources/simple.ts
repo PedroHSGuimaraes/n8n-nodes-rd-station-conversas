@@ -39,6 +39,7 @@ const jobOperations = [
 		description: 'Get the status and result of a background job',
 	},
 ];
+// Lê o status e o resultado de um job em segundo plano.
 const jobGet: Handler = async function (i) {
 	const jobId = requireId(this, 'jobId', 'Job ID', i);
 	return asObject(await conversasRequest.call(this, 'GET', `/v2/jobs/${seg(jobId)}`));

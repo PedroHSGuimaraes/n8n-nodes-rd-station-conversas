@@ -61,6 +61,7 @@ const properties: INodeProperties[] = [
 	},
 ];
 
+// Lista os registros da rota de listagem e devolve um item por registro.
 const getAll: Handler = async function () {
 	const response = asObject(await conversasRequest.call(this, 'GET', '/v2/wallets'));
 	const names = Array.isArray(response.wallets) ? (response.wallets as string[]) : [];
@@ -73,6 +74,7 @@ function requireWallet(ctx: Parameters<typeof fail>[0], wallet: string, i: numbe
 	return wallet;
 }
 
+// Põe o contato numa carteira.
 const addContact: Handler = async function (i) {
 	const customer = await resolveContact(this, 'contact', i);
 	const wallet = requireWallet(this, String(this.getNodeParameter('wallet', i, '')), i);
@@ -81,6 +83,7 @@ const addContact: Handler = async function (i) {
 	);
 };
 
+// Tira o contato da carteira; a API responde 204.
 const removeContact: Handler = async function (i) {
 	const contactId = await resolveContact(this, 'contact', i);
 	// Resposta 204 sem corpo: devolvemos o item padrão de exclusão.
@@ -88,6 +91,7 @@ const removeContact: Handler = async function (i) {
 	return DELETED;
 };
 
+// Esvazia uma carteira; os contatos não são apagados.
 const removeAllContacts: Handler = async function (i) {
 	const wallet = requireWallet(this, String(this.getNodeParameter('wallet', i, '')), i);
 	return asObject(

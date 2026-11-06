@@ -395,6 +395,7 @@ const properties: INodeProperties[] = [
 	},
 ];
 
+// Busca o contato pelo telefone, já normalizado e validado.
 const getByPhone: Handler = async function (i) {
 	const phone = requirePhone(this, this.getNodeParameter('phone', i, '') as string, 'Phone', i);
 	const channel = this.getNodeParameter('channel', i, 'whatsapp') as string;
@@ -403,6 +404,7 @@ const getByPhone: Handler = async function (i) {
 	);
 };
 
+// Busca o contato pelo CPF, só com os 11 dígitos.
 const getByCpf: Handler = async function (i) {
 	// O CPF vai só com números na rota, mesmo digitado com ponto e traço.
 	const cpf = onlyDigits(this.getNodeParameter('cpf', i, '') as string);
@@ -421,6 +423,7 @@ const getByCpf: Handler = async function (i) {
 	);
 };
 
+// Lista os registros da rota de listagem e devolve um item por registro.
 const getAll: Handler = async function (i) {
 	const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;
 	const limit = this.getNodeParameter('limit', i, 50) as number;
@@ -443,6 +446,7 @@ const getAll: Handler = async function (i) {
 	);
 };
 
+// Cria o registro com os campos obrigatórios e só os opcionais preenchidos.
 const create: Handler = async function (i) {
 	const phone = requirePhone(this, this.getNodeParameter('phone', i, '') as string, 'Phone', i);
 	const extra = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
@@ -473,6 +477,7 @@ const create: Handler = async function (i) {
 	);
 };
 
+// Atualiza o registro enviando só os campos que a rota aceita.
 const update: Handler = async function (i) {
 	const phone = requirePhone(this, this.getNodeParameter('phone', i, '') as string, 'Phone', i);
 	const extra = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
@@ -491,6 +496,7 @@ const update: Handler = async function (i) {
 	);
 };
 
+// Atualiza o contato pela rota de telefone (plano Advanced).
 const updateByPhone: Handler = async function (i) {
 	const phone = requirePhone(this, this.getNodeParameter('phone', i, '') as string, 'Phone', i);
 	const extra = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
@@ -507,6 +513,7 @@ const updateByPhone: Handler = async function (i) {
 	return asObject(await conversasRequest.call(this, 'PATCH', `/v2/contacts/${phone}`, { body }));
 };
 
+// Cria vários registros de uma vez; devolve o job para acompanhar com Job: Get.
 const createMany: Handler = async function (i) {
 	const rows =
 		((this.getNodeParameter('contacts', i, {}) as IDataObject).items as IDataObject[]) ?? [];
@@ -526,7 +533,8 @@ const createMany: Handler = async function (i) {
 		await conversasRequest.call(this, 'POST', '/v2/contacts/bulk', { body: { contacts } }),
 	);
 	// O resultado útil é o job: a pessoa acompanha com Job: Get.
-	return asObject(response.job);
+	// A API pode devolver só o id do job em texto; guardamos como `{ id }` para não perder o dado.
+	return typeof response.job === 'string' ? { id: response.job } : asObject(response.job);
 };
 
 /**
@@ -538,6 +546,7 @@ export function buildBulkDeleteBody(filter: { tag?: string; integration?: string
 	return { integration: filter.integration ?? '' };
 }
 
+// Apaga todos os contatos de uma tag; recusa tag vazia e nunca envia `$all`.
 const deleteManyByTag: Handler = async function (i) {
 	const tag = String(this.getNodeParameter('tag', i, '') ?? '').trim();
 	if (tag === '') {
@@ -554,6 +563,7 @@ const deleteManyByTag: Handler = async function (i) {
 	return asObject(response);
 };
 
+// Apaga todos os contatos de uma integração; recusa valor vazio e nunca envia `$all`.
 const deleteManyByIntegration: Handler = async function (i) {
 	const integration = String(this.getNodeParameter('integration', i, '') ?? '').trim();
 	if (integration === '') {

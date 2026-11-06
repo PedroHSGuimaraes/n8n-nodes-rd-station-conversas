@@ -18,6 +18,7 @@ const DEPARTMENT_EMPLOYEE_LIMIT = 50;
 // Quantas dessas chamadas rodam juntas, para não abrir 50 conexões de uma vez.
 const DEPARTMENT_BATCH = 10;
 
+// Menu das integrações oficiais do WhatsApp.
 export async function getOfficialIntegrations(
 	this: ILoadOptionsFunctions,
 ): Promise<INodePropertyOptions[]> {
@@ -28,6 +29,7 @@ export async function getOfficialIntegrations(
 	}));
 }
 
+// Menu dos workflows do CRM (o título é o valor).
 export async function getWorkflows(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 	const response = await conversasRequest.call(this, 'GET', '/v2/workflows');
 	// Workflows não têm id: o título é o valor.
@@ -37,6 +39,7 @@ export async function getWorkflows(this: ILoadOptionsFunctions): Promise<INodePr
 	}));
 }
 
+// Menu das etapas do workflow escolhido.
 export async function getWorkflowStages(
 	this: ILoadOptionsFunctions,
 ): Promise<INodePropertyOptions[]> {
@@ -48,12 +51,14 @@ export async function getWorkflowStages(
 	return stages.map((stage) => ({ name: stage, value: stage }));
 }
 
+// Menu das carteiras.
 export async function getWallets(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 	const response = (await conversasRequest.call(this, 'GET', '/v2/wallets')) as IDataObject;
 	const names = Array.isArray(response?.wallets) ? (response.wallets as string[]) : [];
 	return names.map((name) => ({ name, value: name }));
 }
 
+// Menu dos atendentes.
 export async function getEmployees(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 	const response = await conversasRequest.call(this, 'GET', '/v2/employees');
 	return listOf(response, 'employees').map((row) => ({

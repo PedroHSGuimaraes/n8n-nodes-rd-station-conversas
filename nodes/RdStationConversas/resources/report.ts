@@ -139,6 +139,7 @@ const properties: INodeProperties[] = [
 	},
 ];
 
+// Lista os registros da rota de listagem e devolve um item por registro.
 const getAll: Handler = async function (i) {
 	const options = this.getNodeParameter('options', i, {}) as IDataObject;
 	const startDate = toDay(this.getNodeParameter('startDate', i, ''));
@@ -159,6 +160,7 @@ const getAll: Handler = async function (i) {
 	return asList(await conversasRequest.call(this, 'GET', '/v4/reports', { qs }), 'docs');
 };
 
+// Lê o relatório por destinatário de uma campanha, página a página.
 const getCampaignReport: Handler = async function (i) {
 	const campaign = requireId(this, 'campaign', 'Campaign', i);
 	const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;

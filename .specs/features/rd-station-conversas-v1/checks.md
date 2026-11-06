@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-106 checks in 10 slices · 6 one-way doors · 0 open
+109 checks in 10 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -347,6 +347,15 @@ Proof: run unit | ✔ C105:
 **C106** - Send refuses a message with no text and no attachment (F23)
 Proof: run unit | ✔ C106:
 
+**C107** - A plain-string job id is kept as `{ id }` and a non-string wallet does not crash (Verifier F15)
+Proof: run unit | ✔ C107:
+
+**C108** - Reset All Contacts Flow posts once per execution with three input items (F22)
+Proof: run unit | ✔ C108:
+
+**C109** - All 42 operations use their documented HTTP method and route (F17)
+Proof: run unit | ✔ C109:
+
 ## Coverage
 
 | Set (size) | Member -> proof | Unproven |
@@ -383,5 +392,5 @@ Proof: run unit | ✔ C106:
 - **Settled mid-build:** (1) The restart operation needs `Confirm Restart` (`confirmRestart`, boolean, default false); without it the operation fails before any request (owner, 06/11/2026, AD-013). (2) Tag `v1.0.0` only after the owner tests with a real account (JWE format of the history, message sending): version 1.0.0, CHANGELOG and ready workflows now, no tag; README explains `npm run dev` and the JWK key (owner, 06/11/2026, AD-014).
 - **Dispatched:** Verifier round 1 at f385b77 (fresh sonnet sub-agent), sent after check_proofs 93 pass
 - **Boundary:** C1-C90 closed at f385b77; C91 stays open by owner decision AD-014
-- **Abandoned:** none
+- **Abandoned:** C91 (npm view after the tag) stays open by AD-014; F18 wire formats wait for the real-account test
 - **Walked:** C91 is a walk: after the owner tags v1.0.0 the npm check runs; it stays open by owner decision.

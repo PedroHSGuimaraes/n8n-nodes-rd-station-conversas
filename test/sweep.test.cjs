@@ -82,3 +82,5 @@ describe('S1 request sweep', () => {
 		}
 	});
 });
+
+module.exports = { OPERATIONS };

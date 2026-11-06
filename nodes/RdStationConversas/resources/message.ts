@@ -230,6 +230,7 @@ const properties: INodeProperties[] = [
 	},
 ];
 
+// Envia mensagem de texto, com anexo opcional, para o contato escolhido.
 const send: Handler = async function (i) {
 	const sentBy = this.getNodeParameter('sentBy', i, 'bot') as string;
 	let operator = '';
@@ -283,6 +284,7 @@ const send: Handler = async function (i) {
 	return asObject(await conversasRequest.call(this, 'POST', path, { body: form }));
 };
 
+// Envia um template do WhatsApp para um telefone.
 const sendTemplate: Handler = async function (i) {
 	const phone = requirePhone(this, this.getNodeParameter('phone', i, '') as string, 'Phone', i);
 	const templateId = readLocator(this, 'template', i).value;
@@ -333,6 +335,7 @@ const sendTemplate: Handler = async function (i) {
 	}
 };
 
+// Lê o histórico do contato e abre o JWE com a chave da credencial.
 const getHistory: Handler = async function (i) {
 	// A chave é exigida antes de qualquer chamada: sem ela o histórico não abre.
 	const credentials = await this.getCredentials('rdStationConversasApi');
