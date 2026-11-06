@@ -120,6 +120,10 @@ npm run build
 
 Para testar com a sua conta: rode `npm run dev`, crie a credencial com o token (e a chave JWK, se for ler o histórico) e monte um workflow com `Employee: Get Many` para conferir o token. Depois teste `Message: Get History` (formato do JWE) e `Message: Send` (corpo do envio) — são os dois contratos que a documentação deixa em aberto.
 
+## 🚀 Publicação
+
+O `publish.yml` envia a versão com `npm stage publish` quando uma tag `v*.*.*` chega ao GitHub (ou quando alguém o roda à mão). A versão **fica em espera**: ela só vai ao ar depois que o dono a aprova, com 2FA, na aba **Staged Packages** do npmjs.com. Sem a aprovação, nada muda no registro.
+
 ## 📄 Licença
 
 [MIT](LICENSE.md)
