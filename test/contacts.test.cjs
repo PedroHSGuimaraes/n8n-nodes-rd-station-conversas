@@ -11,7 +11,10 @@ const BASE = 'https://api.tallos.com.br';
 
 // Cria uma lista de contatos falsos com ids únicos para as páginas.
 const contacts = (count, start = 0) =>
-	Array.from({ length: count }, (_, n) => ({ _id: `c${start + n}`, full_name: `Contato ${start + n}` }));
+	Array.from({ length: count }, (_, n) => ({
+		_id: `c${start + n}`,
+		full_name: `Contato ${start + n}`,
+	}));
 
 describe('S3 contacts', () => {
 	it('C15: getByPhone normalises the phone and defaults the channel to whatsapp', async () => {
@@ -197,7 +200,12 @@ describe('S3 contacts', () => {
 describe('S3 custom fields', () => {
 	it('C25: create posts label and info', async () => {
 		const context = makeContext({
-			params: { resource: 'customField', operation: 'create', label: 'Plano', info: 'Plano contratado' },
+			params: {
+				resource: 'customField',
+				operation: 'create',
+				label: 'Plano',
+				info: 'Plano contratado',
+			},
 			responder: () => ({ id: 'cf1', info: 'Plano contratado', key: 'plano', label: 'Plano' }),
 		});
 		const out = await run(context);

@@ -84,7 +84,10 @@ describe('S4 send template', () => {
 	};
 
 	it('C32: sendTemplate posts recipient, template, variables and defaults', async () => {
-		const context = makeContext({ params: templateParams, responder: () => ({ data: {}, message: 'ok' }) });
+		const context = makeContext({
+			params: templateParams,
+			responder: () => ({ data: {}, message: 'ok' }),
+		});
 		await run(context);
 		assert.equal(context.requests[0].method, 'POST');
 		assert.equal(context.requests[0].url, `${BASE}/v3/messages/template/send`);
@@ -115,7 +118,10 @@ describe('S4 send template', () => {
 		const out = await run(context);
 		assert.deepEqual(out, [{ data: { id: 'm1' }, message: 'Created' }]);
 		const operation = new RdStationConversas().description.properties
-			.find((property) => property.name === 'operation' && property.displayOptions.show.resource[0] === 'message')
+			.find(
+				(property) =>
+					property.name === 'operation' && property.displayOptions.show.resource[0] === 'message',
+			)
 			.options.find((option) => option.value === 'sendTemplate');
 		assert.match(operation.description, /201/);
 		assert.match(operation.description, /does not guarantee delivery/);
@@ -184,7 +190,9 @@ describe('S4 message history', () => {
 			assert.deepEqual(await run(context), messages, enc);
 		}
 		const jwe = encryptJwe(messages, publicKey, 'A128GCM').split('.');
-		jwe[0] = Buffer.from(JSON.stringify({ alg: 'RSA-OAEP-256', enc: 'A999GCM' })).toString('base64url');
+		jwe[0] = Buffer.from(JSON.stringify({ alg: 'RSA-OAEP-256', enc: 'A999GCM' })).toString(
+			'base64url',
+		);
 		const context = makeContext({
 			params: historyParams,
 			credentials,

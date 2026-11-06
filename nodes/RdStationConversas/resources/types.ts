@@ -56,3 +56,14 @@ export function asObject(response: unknown): IDataObject {
 	}
 	return {};
 }
+
+// Tira uma lista de objetos de dentro da resposta (`{ employees: [...] }` → `[...]`).
+export function asList(response: unknown, key: string): IDataObject[] {
+	const list = asObject(response)[key];
+	return Array.isArray(list) ? (list as IDataObject[]) : [];
+}
+
+// A API quer datas no formato YYYY-MM-DD; o n8n entrega ISO completo, então cortamos os 10 primeiros.
+export function toDay(value: unknown): string {
+	return String(value ?? '').slice(0, 10);
+}
