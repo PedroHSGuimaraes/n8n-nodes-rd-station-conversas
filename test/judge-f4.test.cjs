@@ -23,6 +23,7 @@ const evilParams = (params) =>
 
 describe('F4 IDs in routes', () => {
 	it('C115: no recorded URL of any operation or dynamic list carries a raw / or ? from an ID', async () => {
+		let encodedCount = 0;
 		for (const [resource, operation, params] of OPERATIONS) {
 			const context = makeContext({
 				params: { resource, operation, ...evilParams(params) },
@@ -37,8 +38,17 @@ describe('F4 IDs in routes', () => {
 					`${resource}.${operation} sent ${request.url}`,
 				);
 				assert.equal(request.url.includes('?'), false, `${resource}.${operation} has a raw ?`);
+				// Só `%` e caracteres seguros: `/`, `=` ou `&` crus vindos do ID quebrariam a rota.
+				assert.match(
+					request.url.slice('https://api.tallos.com.br'.length),
+					/^\/v\d\/[A-Za-z0-9\-_./%]*$/,
+					request.url,
+				);
+				if (request.url.includes(encodeURIComponent(EVIL))) encodedCount += 1;
 			}
 		}
+		// As rotas com ID no caminho usam a forma codificada exata (a%2Fb%3Fc%3Dd).
+		assert.ok(encodedCount >= 12, `only ${encodedCount} URLs carry the encoded id`);
 		// Lista de departamentos: o ID do atendente vem da API e também entra na rota.
 		const context = makeContext({
 			responder: (options) =>
