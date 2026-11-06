@@ -30,7 +30,11 @@ const OPERATIONS = [
 	['employee', 'get', { employee: id('e') }],
 	['employee', 'activate', { employee: id('e') }],
 	['employee', 'deactivate', { employee: id('e') }],
-	['employee', 'createMany', { employees: { items: [{ email: 'a@x.com', name: 'A', role: 'admin' }] } }],
+	[
+		'employee',
+		'createMany',
+		{ employees: { items: [{ email: 'a@x.com', name: 'A', role: 'admin' }] } },
+	],
 	['employee', 'deactivateMany', { employeeIds: ['e'] }],
 	['flow', 'getAll', {}],
 	['flow', 'forwardContact', { contact: id('c'), flow: id('f') }],
@@ -69,7 +73,10 @@ describe('S1 request sweep', () => {
 			assert.ok(context.requests.length > 0, `${resource}.${operation} sent no request`);
 			for (const request of context.requests) {
 				assert.equal(request.timeout, 30000, `${resource}.${operation} timeout`);
-				assert.ok(request.url.startsWith('https://api.tallos.com.br/'), `${resource}.${operation} url`);
+				assert.ok(
+					request.url.startsWith('https://api.tallos.com.br/'),
+					`${resource}.${operation} url`,
+				);
 				assert.equal(request.credentialType, 'rdStationConversasApi');
 			}
 		}

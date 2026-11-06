@@ -40,7 +40,10 @@ describe('S9 documentation', () => {
 				(p) => p.name === 'operation' && p.displayOptions.show.resource[0] === resource.value,
 			);
 			for (const option of property.options) {
-				assert.ok(readme.includes(`${resource.name}: ${option.name}`), `${resource.name}: ${option.name}`);
+				assert.ok(
+					readme.includes(`${resource.name}: ${option.name}`),
+					`${resource.name}: ${option.name}`,
+				);
 				listed += 1;
 			}
 		}

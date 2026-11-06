@@ -24,7 +24,7 @@ O token é enviado como `Authorization: Bearer <token>`. O servidor é fixo (`ht
 
 ## 🧰 Recursos e operações
 
-Todo campo de ID mostra uma **lista pesquisável** (modo *From List*, o padrão) e aceita colar o ID (*By ID*). Onde a rota pede o `_id` do contato, existe também o modo **By Phone**: o node resolve o telefone com `GET /v2/contacts/{telefone}/exists`. Telefones usam o formato internacional, só dígitos (por exemplo `5511999998888`); `+`, espaços, hífen e parênteses são removidos para você.
+Todo campo de ID mostra uma **lista pesquisável** (modo _From List_, o padrão) e aceita colar o ID (_By ID_). Onde a rota pede o `_id` do contato, existe também o modo **By Phone**: o node resolve o telefone com `GET /v2/contacts/{telefone}/exists`. Telefones usam o formato internacional, só dígitos (por exemplo `5511999998888`); `+`, espaços, hífen e parênteses são removidos para você.
 
 As listas com paginação têm **Return All** e **Limit**. Exclusões devolvem `{ "deleted": true }`.
 
@@ -35,7 +35,7 @@ As listas com paginação têm **Return All** e **Limit**. Exclusões devolvem `
 - Campaign: Get — `GET /v1/campaigns/{id}`
 - Campaign: Get Many — `GET /v1/campaigns`
 - Contact: Create — `POST /v2/contacts/whatsapp-business-by-brokers`
-- Contact: Create Many — `POST /v2/contacts/bulk` (plano Advanced, devolve um *job*)
+- Contact: Create Many — `POST /v2/contacts/bulk` (plano Advanced, devolve um _job_)
 - Contact: Delete Many by Integration — `DELETE /v2/contacts` ⚠️ irreversível
 - Contact: Delete Many by Tag — `DELETE /v2/contacts` ⚠️ irreversível
 - Contact: Get by CPF — `GET /v2/contacts/cpf/{cpf}/exists`
@@ -50,7 +50,7 @@ As listas com paginação têm **Return All** e **Limit**. Exclusões devolvem `
 - Custom Field: Get Many — `GET /v2/custom-fields`
 - Custom Field: Update — `PUT /v2/custom-fields/{id}`
 - Employee: Activate — `PUT /v2/employees/{id}/activate`
-- Employee: Create Many — `POST /v2/employees/bulk` (plano Advanced, devolve um *job*)
+- Employee: Create Many — `POST /v2/employees/bulk` (plano Advanced, devolve um _job_)
 - Employee: Deactivate — `PUT /v2/employees/{id}/deactivate`
 - Employee: Deactivate Many — `PATCH /v2/employees/deactivate` (plano Advanced)
 - Employee: Get — `GET /v1/employees/{id}`
@@ -73,7 +73,7 @@ As listas com paginação têm **Return All** e **Limit**. Exclusões devolvem `
 
 **Rotas deprecadas, deixadas de fora:** `POST /v2/contacts`, `POST /v2/contacts/whatsapp-business`, `PUT /v2/contacts/whatsapp-business`, `POST /v2/messages/{id}/send-template-filled`, `POST /v2/messages/{id}/send-template-filled-by-brokers` e `POST /api/v3/message/template/send`. Use `Contact: Create`, `Contact: Update` e `Message: Send Template`.
 
-**Sem gatilho (trigger):** a documentação do Conversas não descreve webhook, evento nem payload. Para reagir a eventos, use o node *Webhook* do n8n configurado no painel do Conversas.
+**Sem gatilho (trigger):** a documentação do Conversas não descreve webhook, evento nem payload. Para reagir a eventos, use o node _Webhook_ do n8n configurado no painel do Conversas.
 
 Envio de mensagem: sem anexo, o corpo vai como `application/x-www-form-urlencoded`; com anexo (campo **Attach Binary Property**), vai como `multipart/form-data`. Um `201` em **Send Template** **não garante a entrega**.
 
@@ -103,7 +103,7 @@ O node **não checa o plano**: quem responde é a API. O histórico de mensagens
 - Contatos e campanhas são paginados de 100 em 100, e o relatório de campanha de 50 em 50.
 - A documentação não informa limite de taxa nem `429`; o erro, se vier, aparece como erro da API.
 - A lista de **Departments** é montada a partir dos 50 primeiros atendentes (a API não tem rota de departamentos).
-- Criações em massa rodam em segundo plano: use **Job: Get** em um laço com *Wait* para acompanhar.
+- Criações em massa rodam em segundo plano: use **Job: Get** em um laço com _Wait_ para acompanhar.
 
 ## 🛠️ Desenvolvimento e teste local
 
