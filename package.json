@@ -10,6 +10,8 @@
 		"tallos",
 		"whatsapp",
 		"chat",
+		"messaging",
+		"customer service",
 		"ai-tool"
 	],
 	"license": "MIT",
@@ -24,6 +26,10 @@
 	},
 	"bugs": {
 		"url": "https://github.com/PedroHSGuimaraes/n8n-nodes-rd-station-conversas/issues"
+	},
+	"funding": {
+		"type": "individual",
+		"url": "https://buymeacoffee.com/qTny0AzFXS"
 	},
 	"main": "dist/nodes/RdStationConversas/RdStationConversas.node.js",
 	"scripts": {
