@@ -3,16 +3,17 @@
  * `conversasRequest`. Ter um ponto só garante a base fixa, o `timeout` explícito
  * e a conversão de erro HTTP em `NodeApiError` no mesmo formato em todas as operações.
  */
-import type {
-	IDataObject,
-	IExecuteFunctions,
-	IHttpRequestMethods,
-	IHttpRequestOptions,
-	ILoadOptionsFunctions,
-	INode,
-	JsonObject,
+import {
+	type IDataObject,
+	type IExecuteFunctions,
+	type IHttpRequestMethods,
+	type IHttpRequestOptions,
+	type ILoadOptionsFunctions,
+	type INode,
+	type JsonObject,
+	type NodeOperationError,
+	NodeApiError,
 } from 'n8n-workflow';
-import { NodeApiError, type NodeOperationError } from 'n8n-workflow';
 
 // A doc só documenta este servidor; por isso não existe campo de URL base na credencial.
 export const BASE_URL = 'https://api.tallos.com.br';
