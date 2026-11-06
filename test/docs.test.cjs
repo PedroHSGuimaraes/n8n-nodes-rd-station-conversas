@@ -16,7 +16,7 @@ describe('S9 documentation', () => {
 		const readme = read('README.md');
 		for (const title of [
 			'Instalação',
-			'Credencial',
+			'Credenciais',
 			'Recursos e operações',
 			'Chave de criptografia do histórico',
 			'Operações irreversíveis',
@@ -84,6 +84,44 @@ describe('S9 documentation', () => {
 			const head = read(file).slice(0, 600);
 			assert.match(head, /^\/\*\*/, `${file} has no header comment`);
 			assert.match(head, /[ãõçéíóúâê]|\b(de|do|da|que|para)\b/, `${file} header is not Portuguese`);
+		}
+	});
+
+	// C120: o dono pediu (06/11/2026) "sempre postar com documentação completa igual do rd crm". O teste
+	// falha se o README perder uma seção do padrão do README do RD CRM, ou se o package.json perder o
+	// `funding` (link do Buy Me a Coffee que o `npm fund` mostra).
+	it('C120: the README has the RD CRM pattern sections, the AI tool guide and the package has funding', () => {
+		const readme = read('README.md');
+		for (const title of [
+			'Funcionalidades',
+			'Instalação',
+			'Credenciais',
+			'Recursos e operações',
+			'Usar como Tool de Agente de IA',
+			'Desenvolvimento',
+			'Compatibilidade',
+			'Recursos',
+			'Publicação',
+			'Versões',
+			'Suporte',
+			'Apoie o projeto',
+			'Licença',
+		]) {
+			assert.match(readme, new RegExp(`^## \\S+ ${title}`, 'm'), `README sem a seção ${title}`);
+		}
+		// `Recursos` sozinho casaria com `Recursos e operações` no laço acima (regex sem âncora no fim);
+		// este assert exige o título exato, para a seção de links não poder sumir sem o teste falhar.
+		assert.match(readme, /^## \S+ Recursos$/m, 'README sem a seção Recursos');
+		// A seção de IA traz a variável que liga a tool e o `$fromAI` com operação real do pacote.
+		assert.match(readme, /N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true/);
+		assert.match(readme, /\$fromAI\(/);
+		// O link de apoio do README é o mesmo do `funding`.
+		const pkg = JSON.parse(read('package.json'));
+		assert.deepEqual(pkg.funding, { type: 'individual', url: 'https://buymeacoffee.com/qTny0AzFXS' });
+		assert.ok(readme.includes(pkg.funding.url), 'README sem o link de apoio');
+		// A seção Versões lista toda versão que o CHANGELOG tem.
+		for (const [, version] of read('CHANGELOG.md').matchAll(/^## (\d+\.\d+\.\d+)/gm)) {
+			assert.ok(readme.includes(`**${version}**`), `README sem a versão ${version} em Versões`);
 		}
 	});
 });

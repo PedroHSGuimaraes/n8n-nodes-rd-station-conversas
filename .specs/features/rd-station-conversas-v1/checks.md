@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-119 checks in 11 slices · 6 one-way doors · 0 open
+120 checks in 11 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -387,6 +387,9 @@ Proof: run unit | ✔ C118:
 
 **C119** - publish.yml stages the package with `npm@12.2.2 stage publish --provenance` (stage-only npm token: the owner approves each version on the Staged Packages tab), with `RELEASE_MODE` and `NODE_AUTH_TOKEN` in the step env, no `npm publish` or `npm run release` step, a `workflow_dispatch` trigger and the same Node version as ci.yml
 Proof: run unit | ✔ C119:
+
+**C120** - The README has the sections of the RD CRM README pattern (Funcionalidades, Instalação, Credenciais, Recursos e operações, Usar como Tool de Agente de IA, Desenvolvimento, Compatibilidade, Recursos, Publicação, Versões, Suporte, Apoie o projeto, Licença), the `N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true` variable, `$fromAI(` examples, every CHANGELOG version under Versões, and package.json carries `funding` with the Buy Me a Coffee link (AD-017; owner's request of 06/11/2026)
+Proof: run unit | ✔ C120:
 
 ## Coverage
 

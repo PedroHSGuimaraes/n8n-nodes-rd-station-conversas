@@ -2,9 +2,26 @@
 
 Node community do [n8n](https://n8n.io/) para o **[RD Station Conversas](https://www.rdstation.com/conversas/)** (chat e WhatsApp, o antigo Tallos).
 
-O pacote traz **um node** (`RD Station Conversas`) com seletor **Recurso → Operação** e **uma credencial** (`RD Station Conversas API`). Ele cobre as 42 rotas não deprecadas da [API do Conversas](https://developers.rdstation.com/reference/conversas-v2-authentication): contatos, mensagens, templates, histórico decriptado, campanhas, relatórios e analytics.
+[![Apoie no Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-Apoie_o_projeto-FFDD00?logo=buy-me-a-coffee&logoColor=000000)](https://buymeacoffee.com/qTny0AzFXS)
+
+O RD Station Conversas é a plataforma de atendimento por chat e WhatsApp da RD. O pacote traz **um node** (`RD Station Conversas`) com seletor **Recurso → Operação** e **uma credencial** (`RD Station Conversas API`). Ele cobre as 42 rotas não deprecadas da [API do Conversas](https://developers.rdstation.com/reference/conversas-v2-authentication): contatos, mensagens, templates, histórico decriptado, campanhas, relatórios e analytics.
 
 [n8n](https://n8n.io/) é uma plataforma de automação de fluxos com [licença fair-code](https://docs.n8n.io/reference/license/).
+
+[Instalação](#-instalação) · [Credenciais](#-credenciais) · [Recursos e operações](#-recursos-e-operações) · [Histórico](#-chave-de-criptografia-do-histórico) · [Irreversíveis](#️-operações-irreversíveis) · [Planos](#-planos-pro-e-advanced) · [Limites](#-limites) · [Tool de IA](#-usar-como-tool-de-agente-de-ia) · [Desenvolvimento](#️-desenvolvimento-e-teste-local) · [Versões](#-versões) · [Suporte](#-suporte) · [Apoie](#-apoie-o-projeto)
+
+---
+
+## 🚀 Funcionalidades
+
+- **Um node unificado** — `RD Station Conversas`, com seletor **Recurso → Operação** e 13 recursos.
+- **42 operações** — contatos, campos personalizados, atendentes, fluxos, workflows do CRM, jobs, mensagens, templates, carteiras, integrações do WhatsApp, relatórios, analytics e campanhas.
+- **Listas pesquisáveis** — contato, template, atendente, fluxo, campanha e campo personalizado vêm da sua conta. Você escolhe pelo nome ou cola o ID. No contato, também vale o telefone.
+- **Histórico de mensagens decriptado** — o node abre o histórico criptografado da API com a sua chave privada, sem dependência extra.
+- **Return All e Limit** — as listas com paginação buscam tudo ou param no limite que você define.
+- **Operações em massa protegidas** — apagar contatos só aceita tag ou integração, e reiniciar fluxos exige confirmação.
+- **Usável como Tool de IA** — o node tem `usableAsTool: true`, então um **AI Agent** do n8n pode chamar as operações. Veja [Usar como Tool de Agente de IA](#-usar-como-tool-de-agente-de-ia).
+- **Zero dependências de runtime** — só o `n8n-workflow` do próprio n8n. Toda requisição leva timeout de 30 s.
 
 ## 📦 Instalação
 
@@ -14,7 +31,11 @@ Siga o [guia de community nodes](https://docs.n8n.io/integrations/community-node
 n8n-nodes-rd-station-conversas
 ```
 
-## 🔑 Credencial
+> Requer uma instância n8n com `n8nNodesApiVersion` 1.
+
+## 🔑 Credenciais
+
+O pacote tem uma credencial: **RD Station Conversas API**.
 
 1. No RD Station Conversas, abra **Apps e Integrações → API** (<https://app.tallos.com.br/app/integrations/api>) e copie o **token JWT** da conta.
 2. No n8n, crie uma credencial **RD Station Conversas API** e cole o token em **API Token**.
@@ -73,9 +94,11 @@ As listas com paginação têm **Return All** e **Limit**. Exclusões devolvem `
 
 **Rotas deprecadas, deixadas de fora:** `POST /v2/contacts`, `POST /v2/contacts/whatsapp-business`, `PUT /v2/contacts/whatsapp-business`, `POST /v2/messages/{id}/send-template-filled`, `POST /v2/messages/{id}/send-template-filled-by-brokers` e `POST /api/v3/message/template/send`. Use `Contact: Create`, `Contact: Update` e `Message: Send Template`.
 
-**Sem gatilho (trigger):** a documentação do Conversas não descreve webhook, evento nem payload. Para reagir a eventos, use o node _Webhook_ do n8n configurado no painel do Conversas.
-
 Envio de mensagem: sem anexo, o corpo vai como `application/x-www-form-urlencoded`; com anexo (campo **Attach Binary Property**), vai como `multipart/form-data`. Um `201` em **Send Template** **não garante a entrega**.
+
+## 🔔 Gatilho
+
+O pacote **não tem node de gatilho** (trigger). A documentação do Conversas não descreve webhook, evento nem payload. Para reagir a eventos, use o node _Webhook_ do n8n configurado no painel do Conversas.
 
 ## 🔐 Chave de criptografia do histórico
 
@@ -108,6 +131,60 @@ O node **não checa o plano**: quem responde é a API. O histórico de mensagens
 - O texto do histórico é lido como UTF-8 e, se os bytes não forem UTF-8 válido, como latin1 (AD-015). Um texto latin1 que por acaso forme só pares UTF-8 válidos (como `SÃ£o`) sairia como UTF-8; a API real decide isso no seu teste.
 - Criações em massa rodam em segundo plano: use **Job: Get** em um laço com _Wait_ para acompanhar.
 
+## 🤖 Usar como Tool de Agente de IA
+
+O node `RD Station Conversas` é **usável como tool** por nós de **AI Agent** do n8n (Tools Agent). Isso deixa o modelo **executar ações no seu Conversas sozinho** — por exemplo: *"envie 'Seu pedido está pronto' para o contato 5511999998888"*.
+
+### Como ligar (2 passos)
+
+1. **No servidor n8n**, habilite o uso de community nodes como tools (por segurança, vem **desligado por padrão**). Defina a variável de ambiente:
+
+   ```bash
+   N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+   ```
+
+   | Instalação | Onde definir |
+   | --- | --- |
+   | **Docker / docker-compose** | Adicione em `environment:` do serviço n8n (ou no `.env`) e recrie o container (`docker compose up -d`). |
+   | **npm / npx** | Exporte antes de subir: `export N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true && n8n start`. |
+   | **n8n Cloud** | Já habilitado nos planos que suportam community nodes. |
+
+   > Sem essa variável o node **não aparece** na lista de tools do AI Agent — é a causa nº 1 de "não acho o node como tool".
+
+2. **No workflow**, adicione um node **AI Agent**, conecte um **Chat Model** e, no conector **Tool**, adicione o **RD Station Conversas**. Escolha o **Recurso** e a **Operação** que o agente pode usar (ex.: Message → Send). Uma tool por operação é a prática recomendada.
+
+### Deixe o modelo preencher os campos (`$fromAI`)
+
+Em cada campo do node em modo tool aparece o botão **"Let the model define this"**, que usa a expressão. Exemplos neste pacote:
+
+```
+Message: Send, campo Message:
+{{ $fromAI('message', 'Texto da mensagem a enviar ao contato', 'string') }}
+
+Message: Send Template, campo Phone:
+{{ $fromAI('phone', 'Telefone do contato, só dígitos, por exemplo 5511999998888', 'string') }}
+
+Contact: Get by Phone, campo Phone:
+{{ $fromAI('phone', 'Telefone do contato, só dígitos, por exemplo 5511999998888', 'string') }}
+```
+
+- Assinatura: `$fromAI(key, description?, type?, defaultValue?)` — `key` de 1–64 caracteres (`[a-zA-Z0-9_-]`); `type` = `string` | `number` | `boolean` | `json`.
+- Você pode **misturar**: fixar alguns campos (ex.: sempre o mesmo template) e deixar o modelo preencher outros (telefone, variáveis).
+- Quanto mais específico o seu prompt ou a System Message do agente, melhor o resultado.
+
+### Boas práticas
+
+- **Restrinja o escopo:** exponha só as operações que o agente precisa (ex.: só *Contact: Get by Phone* e *Message: Send*), em vez de liberar tudo.
+- **Nunca libere as [operações irreversíveis](#️-operações-irreversíveis)** (*Delete Many by Tag*, *Delete Many by Integration*, *Reset All Contacts Flow*, *Remove All Contacts*) a um agente.
+- **Credencial dedicada** com permissões mínimas para o agente. Deixe vazio o campo **Private Key (JWK)** se o agente não precisa do histórico.
+- **n8n atualizado:** versões antigas tinham um bug em que a tool de community node retornava resposta vazia para o agente ([n8n#26202](https://github.com/n8n-io/n8n/issues/26202)); já corrigido.
+
+### Referências
+
+- [Tools Agent — n8n Docs](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent/tools-agent)
+- [Let AI specify tool parameters (`$fromAI`) — n8n Docs](https://docs.n8n.io/advanced-ai/examples/using-the-fromai-function/)
+- [Variáveis de ambiente de nodes — n8n Docs](https://docs.n8n.io/hosting/configuration/environment-variables/nodes/)
+
 ## 🛠️ Desenvolvimento e teste local
 
 ```bash
@@ -120,9 +197,38 @@ npm run build
 
 Para testar com a sua conta: rode `npm run dev`, crie a credencial com o token (e a chave JWK, se for ler o histórico) e monte um workflow com `Employee: Get Many` para conferir o token. Depois teste `Message: Get History` (formato do JWE) e `Message: Send` (corpo do envio) — são os dois contratos que a documentação deixa em aberto.
 
+## ✅ Compatibilidade
+
+- Requer n8n com `n8nNodesApiVersion` 1.
+- Testado com o `n8n-workflow` 2.16 e o `@n8n/node-cli` 0.55.5.
+- API do Conversas em `https://api.tallos.com.br`.
+
+## 📚 Recursos
+
+- [Documentação de community nodes do n8n](https://docs.n8n.io/integrations/community-nodes/)
+- [Referência da API do RD Station Conversas](https://developers.rdstation.com/reference/conversas-v2-authentication)
+
 ## 🚀 Publicação
 
 O `publish.yml` envia a versão com `npm stage publish` quando uma tag `v*.*.*` chega ao GitHub (ou quando alguém o roda à mão). A versão **fica em espera**: ela só vai ao ar depois que o dono a aprova, com 2FA, na aba **Staged Packages** do npmjs.com. Sem a aprovação, nada muda no registro.
+
+## 📈 Versões
+
+- **1.0.0** — **Primeira versão do pacote.** Node `RD Station Conversas` com as 42 rotas não deprecadas, credencial por token JWT, histórico de mensagens decriptado, campos guiados com lista pesquisável, operações em massa protegidas e sem gatilho. Veja o `CHANGELOG.md`. O pacote ainda não foi publicado no npm.
+
+## 🆘 Suporte
+
+Se algo não funcionar:
+
+1. Confirme se o **token JWT** está correto e se o **Test** da credencial devolve sucesso. Um `401` indica token inválido, e um `403`, falta de permissão ou de plano.
+2. Para o histórico de mensagens, confirme a **Private Key (JWK)** e o plano **Pro** ou **Advanced**.
+3. Verifique se a versão do n8n é compatível.
+4. Consulte os logs do n8n para detalhes do erro.
+5. Abra uma [issue no GitHub](https://github.com/PedroHSGuimaraes/n8n-nodes-rd-station-conversas/issues).
+
+## ☕ Apoie o projeto
+
+Este node é mantido de forma independente. Se ele ajuda suas automações, você pode apoiar o desenvolvimento, a manutenção e as novas integrações pelo [Buy Me a Coffee](https://buymeacoffee.com/qTny0AzFXS).
 
 ## 📄 Licença
 
