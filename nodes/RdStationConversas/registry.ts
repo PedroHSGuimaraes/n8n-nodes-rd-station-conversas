@@ -5,9 +5,12 @@
  */
 import { contactResource } from './resources/contact';
 import { customFieldResource } from './resources/customField';
+import { messageResource } from './resources/message';
 import type { ResourceModule } from './resources/types';
 
 // Ordem alfabética pelo rótulo, como pede a UX guideline do n8n.
-export const resources: ResourceModule[] = [contactResource, customFieldResource].sort((a, b) =>
-	a.name.localeCompare(b.name),
-);
+export const resources: ResourceModule[] = [
+	contactResource,
+	customFieldResource,
+	messageResource,
+].sort((a, b) => a.name.localeCompare(b.name));

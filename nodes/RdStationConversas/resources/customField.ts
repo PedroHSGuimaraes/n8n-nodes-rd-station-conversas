@@ -5,6 +5,7 @@
  */
 import type { IDataObject, INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 
+import { locator } from '../locators';
 import { collectPages } from '../pagination';
 import { requireId, returnAllAndLimit, showFor } from '../helpers';
 import { conversasRequest } from '../transport';
@@ -13,28 +14,14 @@ import { DELETED, type Handler, type ResourceModule, asObject, operationProperty
 const RESOURCE = 'customField';
 
 // Localizador do campo: lista pesquisável (padrão) ou ID digitado.
-const customFieldLocator = (operations: string[]): INodeProperties => ({
-	displayName: 'Custom Field',
-	name: 'customField',
-	type: 'resourceLocator',
-	default: { mode: 'list', value: '' },
-	required: true,
-	displayOptions: showFor(RESOURCE, operations),
-	modes: [
-		{
-			displayName: 'From List',
-			name: 'list',
-			type: 'list',
-			typeOptions: { searchListMethod: 'searchCustomFields', searchable: true },
-		},
-		{
-			displayName: 'By ID',
-			name: 'id',
-			type: 'string',
-			placeholder: 'e.g. 6650f2a1b2c3d4e5f6a7b8c9',
-		},
-	],
-});
+const customFieldLocator = (operations: string[]): INodeProperties =>
+	locator({
+		displayName: 'Custom Field',
+		name: 'customField',
+		searchMethod: 'searchCustomFields',
+		resource: RESOURCE,
+		operations,
+	});
 
 const create: Handler = async function (i) {
 	// O corpo leva só os dois campos que a API aceita ao criar.
