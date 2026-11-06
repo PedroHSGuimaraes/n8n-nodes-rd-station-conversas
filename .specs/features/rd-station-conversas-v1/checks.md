@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-118 checks in 11 slices · 6 one-way doors · 0 open
+119 checks in 11 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -384,6 +384,9 @@ Proof: run unit | ✔ C117:
 
 **C118** - An attachment-only message omits the empty message field (the-judge)
 Proof: run unit | ✔ C118:
+
+**C119** - publish.yml stages the package with `npm@12.2.2 stage publish --provenance` (stage-only npm token: the owner approves each version on the Staged Packages tab), with `RELEASE_MODE` and `NODE_AUTH_TOKEN` in the step env, no `npm publish` or `npm run release` step, a `workflow_dispatch` trigger and the same Node version as ci.yml
+Proof: run unit | ✔ C119:
 
 ## Coverage
 

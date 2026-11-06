@@ -56,6 +56,36 @@ describe('S1 package and CI', () => {
 	it('C7: publish.yml refuses tag v1.0.1 while package.json says 1.0.0', () => {
 		assert.throws(() => validateTag('v1.0.1'));
 	});
+
+	// Token do npm "Read and write (stage only)" (06/11/2026): com ele `npm publish` e `npm run release`
+	// falham com E_STAGE_REQUIRED. A versão precisa ir para a fila do `npm stage publish`, que só existe
+	// no npm 12 (o Node LTS do runner traz o npm 11). O dono aprova a versão na aba Staged Packages.
+	// O teste lê o texto do yml, sem parser YAML, e falha se o workflow voltar a publicar direto.
+	it('C119: publish.yml stages the package with npm 12 instead of publishing it', () => {
+		const publish = read('.github/workflows/publish.yml');
+		// Só conta passo `run:` de verdade; comentário que cita o comando não vale.
+		const runs = publish.split('\n').filter((line) => /^\s*(-\s+)?run:/.test(line));
+		assert.ok(
+			runs.some((l) => l.includes('npm@12.2.2 stage publish') && l.includes('--provenance')),
+			'publish.yml must run "npx -y npm@12.2.2 stage publish --provenance"',
+		);
+		assert.equal(runs.some((l) => /\bnpm publish\b/.test(l)), false, 'no "npm publish" step');
+		assert.equal(runs.some((l) => /\bnpm run release\b/.test(l)), false, 'no "npm run release" step');
+		// `prepublishOnly` roda `n8n-node prerelease`, que sai com código 1 sem RELEASE_MODE.
+		const lines = publish.split('\n');
+		const at = lines.findIndex((l) => /^\s*(-\s+)?run:.*stage publish/.test(l));
+		assert.notEqual(at, -1, 'stage publish step not found');
+		const rest = lines.slice(at + 1);
+		const end = rest.findIndex((l) => /^\s*-\s+(name|uses):/.test(l));
+		const block = (end === -1 ? rest : rest.slice(0, end)).join('\n');
+		assert.match(block, /RELEASE_MODE:\s*['"]?true['"]?/);
+		assert.match(block, /NODE_AUTH_TOKEN:\s*\$\{\{\s*secrets\.NPM_TOKEN\s*\}\}/);
+		// workflow_dispatch deixa o dono republicar sem mover a tag.
+		assert.match(publish, /^\s*workflow_dispatch:/m);
+		// O lock só é instalável pelo mesmo npm que o gerou; a versão de Node precisa ser igual à do ci.
+		const nodeVersion = (text) => text.match(/^\s*node-version:\s*['"]?([^'"\n]+)['"]?\s*$/m)?.[1].trim();
+		assert.equal(nodeVersion(publish), nodeVersion(read('.github/workflows/ci.yml')));
+	});
 });
 
 describe('S2 credential', () => {
