@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-111 checks in 11 slices · 6 one-way doors · 0 open
+113 checks in 11 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -363,6 +363,12 @@ Proof: run unit | ✔ C110:
 
 **C111** - A JWE text encrypted as latin1 (node-jose string path) decrypts with its accents (the-judge)
 Proof: run unit | ✔ C111:
+
+**C112** - report getAll with Return All walks two pages by page and limit (the-judge)
+Proof: run unit | ✔ C112:
+
+**C113** - report getAll offers Return All and Limit and stops at the Limit (the-judge)
+Proof: run unit | ✔ C113:
 
 ## Coverage
 

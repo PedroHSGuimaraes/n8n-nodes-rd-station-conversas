@@ -74,7 +74,7 @@ const properties: INodeProperties[] = [
 		resource: RESOURCE,
 		operations: ['getCampaignReport'],
 	}),
-	...returnAllAndLimit(RESOURCE, ['getCampaignReport']),
+	...returnAllAndLimit(RESOURCE, ['getAll', 'getCampaignReport']),
 	{
 		displayName: 'Options',
 		name: 'options',
@@ -157,7 +157,24 @@ const getAll: Handler = async function (i) {
 	for (const key of ['channel', 'department', 'employee', 'status', 'tabulation']) {
 		if (options[key]) qs[key] = options[key];
 	}
-	return asList(await conversasRequest.call(this, 'GET', '/v4/reports', { qs }), 'docs');
+	const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;
+	const limit = this.getNodeParameter('limit', i, 50) as number;
+	// A doc da rota aceita `page` e `limit`; pedimos 100 por página (no mínimo 2) e cortamos no Limit.
+	const pageSize = returnAll ? 100 : Math.max(2, Math.min(limit, 100));
+	return collectPages<IDataObject>(
+		async (page) => {
+			const items = asList(
+				await conversasRequest.call(this, 'GET', '/v4/reports', {
+					qs: { ...qs, page, limit: pageSize },
+				}),
+				'docs',
+			);
+			// A rota não devolve total: página menor que o tamanho pedido é a última.
+			return { items, last: items.length < pageSize };
+		},
+		returnAll,
+		limit,
+	);
 };
 
 // Lê o relatório por destinatário de uma campanha, página a página.
