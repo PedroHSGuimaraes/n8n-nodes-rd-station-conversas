@@ -5,6 +5,7 @@
  */
 import type { IDataObject, ILoadOptionsFunctions, INodePropertyOptions } from 'n8n-workflow';
 
+import { seg } from '../helpers';
 import { conversasRequest } from '../transport';
 
 const listOf = (response: unknown, key: string): IDataObject[] => {
@@ -82,7 +83,7 @@ export async function getDepartments(this: ILoadOptionsFunctions): Promise<INode
 		const batch = employees.slice(start, start + DEPARTMENT_BATCH);
 		const details = await Promise.all(
 			batch.map((employee) =>
-				conversasRequest.call(this, 'GET', `/v1/employees/${String(employee.id)}`),
+				conversasRequest.call(this, 'GET', `/v1/employees/${seg(String(employee.id))}`),
 			),
 		);
 		for (const detail of details) {

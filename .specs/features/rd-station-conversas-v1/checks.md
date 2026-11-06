@@ -4,7 +4,7 @@ Build: `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rd-station-conversas-v1/plan.md`
 
-114 checks in 11 slices · 6 one-way doors · 0 open
+115 checks in 11 slices · 6 one-way doors · 0 open
 
 ## Checks
 
@@ -372,6 +372,9 @@ Proof: run unit | ✔ C113:
 
 **C114** - send refuses an empty message in phone mode with zero requests (the-judge)
 Proof: run unit | ✔ C114:
+
+**C115** - No URL of any operation or dynamic list carries a raw / or ? taken from an ID (the-judge)
+Proof: run unit | ✔ C115:
 
 ## Coverage
 
