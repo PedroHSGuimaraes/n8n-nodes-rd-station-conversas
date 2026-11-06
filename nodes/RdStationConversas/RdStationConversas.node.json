@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-rd-station-conversas.rdStationConversas",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Communication", "Sales"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://developers.rdstation.com/reference/conversas-v2-authentication"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/PedroHSGuimaraes/n8n-nodes-rd-station-conversas#readme"
+			}
+		]
+	}
+}
