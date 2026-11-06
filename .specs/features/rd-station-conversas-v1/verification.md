@@ -116,6 +116,9 @@ The Verifier judged C1 to C91 and reported F1 to F23. C92 to C106 are the builde
 | C104 | `hardening.test.cjs` `C104: history asks for pages of 100 whatever the Limit and returns at most Limit` | yes |
 | C105 | `hardening.test.cjs` `C105: bulk operations refuse an empty list before any request` | yes |
 | C106 | `hardening.test.cjs` `C106: send refuses a message with no text and no attachment` | yes |
+| C107 | `hardening.test.cjs` `C107` | yes |
+| C108 | `hardening.test.cjs` `C108` | yes |
+| C109 | `hardening.test.cjs` `C109` | yes |
 
 ## Findings
 
@@ -135,12 +138,12 @@ The Verifier judged C1 to C91 and reported F1 to F23. C92 to C106 are the builde
 | F12 | Operation lookup goes through the prototype: `operation: 'toString'` returned `[object Object]`. | see the Verifier report | dcf52be - C103 |
 | F13 | With Return All off, the history page size follows Limit instead of the fixed 100; an empty `messages` string fails as undecryptable. | see the Verifier report | dcf52be - C104 |
 | F14 | Empty lists go out in `deactivateMany` and both `createMany` operations. | see the Verifier report | dcf52be - C105 |
-| F15 | A non-string `wallet` throws TypeError; `createMany` returns `{}` when `job` is a plain string. | see the Verifier report | Not fixed - edge case outside the plan (non-string wallet, job as plain string); the API documents objects |
+| F15 | A non-string `wallet` throws TypeError; `createMany` returns `{}` when `job` is a plain string. | see the Verifier report | 15bbb5d - C107 |
 | F16 | Tests that pass with a false claim: C5, C17, C36, C40, C72, C87, C88, C90. | see the Verifier report | dcf52be - C17, C87 and C88 tightened; C5, C36, C40, C72 closed by C101, C104, C100 |
-| F17 | The HTTP verb is not asserted in about 20 tests whose claim names it. | see the Verifier report | Not fixed - the verb sits in the route list of the README and each test asserts the URL; risk accepted for v1 |
-| F18 | Unproven wire formats: arrays in `qs`, native `FormData`/`URLSearchParams` with `json: true`, `recipient_number` plus `country_code`. | see the Verifier report | Open by design - proven only with the real account (C91, AD-014); README asks the owner to test |
-| F19 | `searchContacts` filters only the 100 contacts of the requested page. | see the Verifier report | Not fixed - matches S8 AC 2 literally; the filter covers the loaded page |
-| F20 | 38 functions have no leading comment although S9 AC 4 asks for one per function. | see the Verifier report | Not fixed - handlers sit under a file header and named constants; per-function comments are a follow-up |
-| F21 | `proofs.md` records C91 as `pass (Walked)` while no tag exists and `npm view` returns E404. | see the Verifier report | Not fixed - C91 stays a walk blocked by AD-014 until the owner tags |
-| F22 | `resetAllContactsFlow` with Confirm Restart on fires once per input item. | see the Verifier report | Not fixed - one reset per input item with Confirm Restart on is the documented behavior of the node |
+| F17 | The HTTP verb is not asserted in about 20 tests whose claim names it. | see the Verifier report | 15bbb5d - C109 |
+| F18 | Unproven wire formats: arrays in `qs`, native `FormData`/`URLSearchParams` with `json: true`, `recipient_number` plus `country_code`. | see the Verifier report | 15bbb5d - README Limits lists the three formats for the real-account test (C91, AD-014) |
+| F19 | `searchContacts` filters only the 100 contacts of the requested page. | see the Verifier report | 15bbb5d - README Limits documents the one-page filter |
+| F20 | 38 functions have no leading comment although S9 AC 4 asks for one per function. | see the Verifier report | 15bbb5d - a comment on every handler and list function |
+| F21 | `proofs.md` records C91 as `pass (Walked)` while no tag exists and `npm view` returns E404. | see the Verifier report | 15bbb5d - C91 stays a walk blocked by AD-014; checks.md Abandoned records it |
+| F22 | `resetAllContactsFlow` with Confirm Restart on fires once per input item. | see the Verifier report | 15bbb5d - C108 |
 | F23 | `message.send` with empty message and no attachment posts an empty message. | see the Verifier report | dcf52be - C106 |

@@ -1,9 +1,9 @@
 # rd-station-conversas-v1 proofs
 
-**HEAD**: dcf52be
+**HEAD**: 15bbb5d
 **Tree**: clean
 **Shell**: /bin/sh
-**Result**: 108 pass, 0 fail
+**Result**: 111 pass, 0 fail
 
 | Check | Proof | Result |
 | --- | --- | --- |
@@ -113,6 +113,9 @@
 | C104 | `run unit / ✔ C104:` | pass |
 | C105 | `run unit / ✔ C105:` | pass |
 | C106 | `run unit / ✔ C106:` | pass |
+| C107 | `run unit / ✔ C107:` | pass |
+| C108 | `run unit / ✔ C108:` | pass |
+| C109 | `run unit / ✔ C109:` | pass |
 | Build | `npx tsc --noEmit` | pass |
 | Build | `npm run lint` | pass |
 
@@ -121,21 +124,21 @@
 `Run unit` - exit 0
 
 ```
-  ✔ C72: department and employee ids go comma separated (0.097632ms)
-  ✔ C73: campaign getAll follows has_more over pages 1, 2 and 3 (0.12593ms)
-  ✔ C74: campaign get returns the campaign details (0.093604ms)
-✔ S7 reports, analytics and campaigns (1.034519ms)
+  ✔ C72: department and employee ids go comma separated (0.111197ms)
+  ✔ C73: campaign getAll follows has_more over pages 1, 2 and 3 (0.15558ms)
+  ✔ C74: campaign get returns the campaign details (0.117889ms)
+✔ S7 reports, analytics and campaigns (1.248827ms)
 ▶ S1 request sweep
-  ✔ C8: every request of all 42 operations has the fixed base, the credential and timeout 30000 (3.64375ms)
-✔ S1 request sweep (4.223273ms)
-ℹ tests 102
-ℹ suites 15
-ℹ pass 102
+  ✔ C8: every request of all 42 operations has the fixed base, the credential and timeout 30000 (4.821332ms)
+✔ S1 request sweep (5.6185ms)
+ℹ tests 106
+ℹ suites 16
+ℹ pass 106
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 770.300693
+ℹ duration_ms 853.327164
 ```
 
 `npm run build && test -f dist/nodes/RdStationConversas/RdStationConversas.node.js && test -f dist/credentials/` - exit 0
@@ -146,7 +149,7 @@
 
 ┌   n8n-node build  v0.55.5
 │
-◒  Building TypeScript files◐  Building TypeScript files◓  Building TypeScript files◑  Building TypeScript files◒  Building TypeScript files◐  Building TypeScript files◓  Building TypeScript files◑  Building TypeScript files◒  Building TypeScript files.◐  Building TypeScript files.◓  Building TypeScript files.◑  Building TypeScript files.◒  Building TypeScript files.◐  Building TypeScript files.◓  Building TypeScript files.◑  Building TypeScript files.◇  TypeScript build successful
+◒  Building TypeScript files◐  Building TypeScript files◓  Building TypeScript files◑  Building TypeScript files◒  Building TypeScript files◐  Building TypeScript files◓  Building TypeScript files◑  Building TypeScript files◒  Building TypeScript files.◐  Building TypeScript files.◓  Building TypeScript files.◑  Building TypeScript files.◒  Building TypeScript files.◐  Building TypeScript files.◓  Building TypeScript files.◑  Building TypeScript files.◒  Building TypeScript files..◇  TypeScript build successful
 │
 ◇  Copied static files
 │
