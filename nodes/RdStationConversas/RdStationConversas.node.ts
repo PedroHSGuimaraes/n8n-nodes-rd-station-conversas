@@ -88,7 +88,7 @@ export class RdStationConversas implements INodeType {
 					continue;
 				}
 				// Os erros chegam aqui já como NodeApiError ou NodeOperationError (com item e descrição).
-				// eslint-disable-next-line @n8n/community-nodes/require-node-api-error
+				// eslint-disable-next-line @n8n/community-nodes/require-node-api-error -- o erro já é NodeApiError ou NodeOperationError (feito por conversasRequest ou fail) e precisa subir com item e descrição
 				throw error;
 			}
 		}

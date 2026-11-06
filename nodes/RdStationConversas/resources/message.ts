@@ -312,27 +312,24 @@ const sendTemplate: Handler = async function (i) {
 		body.operator_id = operator;
 	}
 
-	try {
-		const response = asObject(
-			await conversasRequest.call(this, 'POST', '/v3/messages/template/send', { body }),
-		);
-		// Devolvemos só o que a doc descreve; o 201 não prova que a mensagem foi entregue.
-		return { data: response.data ?? null, message: response.message ?? null };
-	} catch (error) {
-		const data = ((error as NodeApiError).context as IDataObject | undefined)?.data as
-			| IDataObject
-			| undefined;
-		if (error instanceof NodeApiError && String(error.httpCode) === '404' && data?.code === 301) {
-			throw new NodeApiError(this.getNode(), data as never, {
-				message: `No contact found for the phone ${phone} [item ${i}]`,
-				description: 'There is no contact with this number. Create the contact first',
-				httpCode: '404',
-				itemIndex: i,
-			});
-		}
-		// eslint-disable-next-line @n8n/community-nodes/require-node-api-error
-		throw error;
-	}
+	const response = asObject(
+		await conversasRequest.call(this, 'POST', '/v3/messages/template/send', {
+			body,
+			// 404 com `code` 301 quer dizer "não há contato com esse telefone".
+			mapError: (error) => {
+				const data = (error.context as IDataObject | undefined)?.data as IDataObject | undefined;
+				if (String(error.httpCode) !== '404' || data?.code !== 301) return undefined;
+				return new NodeApiError(this.getNode(), data as never, {
+					message: `No contact found for the phone ${phone} [item ${i}]`,
+					description: 'There is no contact with this number. Create the contact first',
+					httpCode: '404',
+					itemIndex: i,
+				});
+			},
+		}),
+	);
+	// Devolvemos só o que a doc descreve; o 201 não prova que a mensagem foi entregue.
+	return { data: response.data ?? null, message: response.message ?? null };
 };
 
 // Lê o histórico do contato e abre o JWE com a chave da credencial.
@@ -367,55 +364,54 @@ const getHistory: Handler = async function (i) {
 	// O critério fixa páginas de 100; o limite do usuário só corta o resultado (`collectPages`).
 	const pageSize = 100;
 
-	try {
-		return await collectPages<IDataObject>(
-			async (page) => {
-				const qs: IDataObject = {
-					customer_id: customerId,
-					limit: pageSize,
-					page,
-					// Padrões da doc: só WhatsApp, só mensagens de cliente e atendente, só texto.
-					channel: (options.channel as string[] | undefined) ?? ['whatsapp'],
-					sent_by: (options.sentBy as string[] | undefined) ?? ['customer', 'operator'],
-					type: (options.type as string[] | undefined) ?? ['text'],
-				};
-				// A API quer a data como YYYY-MM-DD; o n8n entrega ISO completo, então cortamos.
-				if (options.startDate) qs.start_date = String(options.startDate).slice(0, 10);
-				if (options.endDate) qs.end_date = String(options.endDate).slice(0, 10);
-				const response = asObject(
-					await conversasRequest.call(this, 'GET', '/v2/messages/history', { qs }),
-				);
-				let decoded: unknown = response.messages;
-				if (typeof response.messages === 'string' && response.messages !== '') {
-					const result = decryptJwe(response.messages, jwk);
-					if (!result.ok) {
-						return fail(
-							this,
-							'The messages could not be decrypted',
-							`The message was encrypted with '${result.enc || 'an unknown format'}'. Check that the key in the credential is the one generated for the same account as the token`,
-							i,
-						);
-					}
-					decoded = result.value;
+	return collectPages<IDataObject>(
+		async (page) => {
+			const qs: IDataObject = {
+				customer_id: customerId,
+				limit: pageSize,
+				page,
+				// Padrões da doc: só WhatsApp, só mensagens de cliente e atendente, só texto.
+				channel: (options.channel as string[] | undefined) ?? ['whatsapp'],
+				sent_by: (options.sentBy as string[] | undefined) ?? ['customer', 'operator'],
+				type: (options.type as string[] | undefined) ?? ['text'],
+			};
+			// A API quer a data como YYYY-MM-DD; o n8n entrega ISO completo, então cortamos.
+			if (options.startDate) qs.start_date = String(options.startDate).slice(0, 10);
+			if (options.endDate) qs.end_date = String(options.endDate).slice(0, 10);
+			const response = asObject(
+				await conversasRequest.call(this, 'GET', '/v2/messages/history', {
+					qs,
+					// 403 aqui quer dizer plano sem o recurso: troca a mensagem por uma que diz o que fazer.
+					mapError: (error) =>
+						String(error.httpCode) === '403'
+							? new NodeApiError(this.getNode(), {} as never, {
+									message: error.message,
+									description: 'Message history needs the Pro or Advanced plan',
+									httpCode: '403',
+									itemIndex: i,
+								})
+							: undefined,
+				}),
+			);
+			let decoded: unknown = response.messages;
+			if (typeof response.messages === 'string' && response.messages !== '') {
+				const result = decryptJwe(response.messages, jwk);
+				if (!result.ok) {
+					return fail(
+						this,
+						'The messages could not be decrypted',
+						`The message was encrypted with '${result.enc || 'an unknown format'}'. Check that the key in the credential is the one generated for the same account as the token`,
+						i,
+					);
 				}
-				const messages = Array.isArray(decoded) ? (decoded as IDataObject[]) : [];
-				return { items: messages, last: messages.length < pageSize };
-			},
-			returnAll,
-			limit,
-		);
-	} catch (error) {
-		if (error instanceof NodeApiError && String(error.httpCode) === '403') {
-			throw new NodeApiError(this.getNode(), {} as never, {
-				message: error.message,
-				description: 'Message history needs the Pro or Advanced plan',
-				httpCode: '403',
-				itemIndex: i,
-			});
-		}
-		// eslint-disable-next-line @n8n/community-nodes/require-node-api-error
-		throw error;
-	}
+				decoded = result.value;
+			}
+			const messages = Array.isArray(decoded) ? (decoded as IDataObject[]) : [];
+			return { items: messages, last: messages.length < pageSize };
+		},
+		returnAll,
+		limit,
+	);
 };
 
 export const messageResource: ResourceModule = {

@@ -12,7 +12,7 @@ import type {
 	INode,
 	JsonObject,
 } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+import { NodeApiError, type NodeOperationError } from 'n8n-workflow';
 
 // A doc só documenta este servidor; por isso não existe campo de URL base na credencial.
 export const BASE_URL = 'https://api.tallos.com.br';
@@ -23,6 +23,8 @@ export const REQUEST_TIMEOUT_MS = 30000;
 type Ctx = IExecuteFunctions | ILoadOptionsFunctions;
 
 export interface RequestExtras {
+	// Troca o erro da API por outro mais claro (ex.: 404 vira "contato não encontrado"); `undefined` mantém o original.
+	mapError?: (error: NodeApiError) => NodeApiError | NodeOperationError | undefined;
 	qs?: IDataObject;
 	body?: IHttpRequestOptions['body'];
 	headers?: IDataObject;
@@ -97,6 +99,7 @@ export async function conversasRequest(
 			options,
 		);
 	} catch (error) {
-		throw buildApiError(this.getNode(), error);
+		const apiError = buildApiError(this.getNode(), error);
+		throw extras.mapError?.(apiError) ?? apiError;
 	}
 }

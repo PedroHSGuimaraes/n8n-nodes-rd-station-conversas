@@ -10,7 +10,7 @@ import type {
 	ILoadOptionsFunctions,
 	INodeProperties,
 } from 'n8n-workflow';
-import { NodeApiError, NodeOperationError } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 
 import { conversasRequest } from './transport';
 
@@ -167,24 +167,20 @@ export async function resolveContact(
 	if (mode !== 'phone') return value;
 
 	const phone = requirePhone(ctx, value, 'Contact', itemIndex);
-	try {
-		const response = (await conversasRequest.call(ctx, 'GET', `/v2/contacts/${phone}/exists`, {
-			qs: { channel: 'whatsapp' },
-		})) as IDataObject;
-		const id = (response.data as IDataObject | undefined)?._id;
-		if (typeof id === 'string' && id !== '') return id;
-	} catch (error) {
-		// Só o 404 vira a mensagem de "contato não encontrado"; os demais erros seguem como vieram.
-		// O erro já é um NodeApiError feito por `conversasRequest`; repassá-lo mantém a mensagem da API.
-		// eslint-disable-next-line @n8n/community-nodes/require-node-api-error
-		if (!(error instanceof NodeApiError) || String(error.httpCode) !== '404') throw error;
-	}
-	return fail(
-		ctx,
-		"No contact found for the phone in the 'Contact' parameter",
-		'Check the number or create the contact first',
-		itemIndex,
-	);
+	const notFound = (): NodeOperationError =>
+		new NodeOperationError(
+			ctx.getNode(),
+			`No contact found for the phone in the 'Contact' parameter [item ${itemIndex}]`,
+			{ description: 'Check the number or create the contact first', itemIndex },
+		);
+	const response = (await conversasRequest.call(ctx, 'GET', `/v2/contacts/${phone}/exists`, {
+		qs: { channel: 'whatsapp' },
+		// Só o 404 vira "contato não encontrado"; os demais erros seguem como a API mandou.
+		mapError: (error) => (String(error.httpCode) === '404' ? notFound() : undefined),
+	})) as IDataObject;
+	const id = (response.data as IDataObject | undefined)?._id;
+	if (typeof id === 'string' && id !== '') return id;
+	throw notFound();
 }
 
 // Atalho para mostrar uma propriedade só em certas operações de um recurso.
